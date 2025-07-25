@@ -1,0 +1,41 @@
+﻿StudentID,Name,Gender,AttendanceRate,StudyHoursPerWeek,PreviousGrade,ExtracurricularActivities,ParentalSupport,FinalGrade
+1,John,Male,85,15,78,1,High,80
+2,Sarah,Female,90,20,85,2,Medium,87
+3,Alex,Male,78,10,65,0,Low,68
+4,Michael,Male,92,25,90,3,High,92
+5,Emma,Female,88,18,82,2,Medium,85
+6,Olivia,Female,95,30,88,1,High,90
+7,Daniel,Male,70,8,60,0,Low,62
+8,Sophia,Female,85,17,77,1,Medium,78
+9,James,Male,82,12,70,2,Low,72
+10,Isabella,Female,91,22,86,3,High,88
+11,Ethan,Male,87,16,80,2,Medium,82
+12,Ava,Female,93,28,89,3,High,91
+13,William,Male,75,9,64,0, Low,66
+14,Mia,Female,89,19,83,2, Medium,84
+15,Benjamin,Male,68,7,58,0, Low,60
+16,Charlotte,Female,96,31,92,3, High,95
+17,Henry,Male,81,13,72,1, Medium,74
+18,Amelia,Female,90,21,85,2,High,88
+19,Lucas,Male,73,10,67,1,Low,70
+20,Harper,Female,88,18,79,2,Medium,83
+21,Ava,Female,92,16,88,1,High,93
+22,Liam,Male,47,5,55,0,Low,50
+23,Mia,Female,74,9,70,1,Medium,72
+24,Noah,Male,88,13,84,1,High,89
+25,Emily,Female,39,4,52,0,Low,46
+26,Lucas,Male,68,10,67,1,Medium,70
+27,Grace,Female,94,15,90,1,High,95
+28,Benjamin,Male,56,8,61,0,Low,60
+29,Harper,Female,80,12,76,1,Medium,82
+30,William,Male,45,6,58,0,Low,53
+31,Ella,Female,91,14,86,1,High,92
+32,Henry,Male,66,9,64,0,Medium,67
+33,Chloe,Female,90,13,83,1,High,91
+34,Logan,Male,50,7,60,0,Low,52
+35,Amelia,Female,84,11,77,1,Medium,85
+36,Jackson,Male,41,5,55,0,Low,47
+37,Victoria,Female,97,18,92,1,High,96
+38,Levi,Male,70,10,68,1,Medium,71
+39,Sofia,Female,82,12,79,1,High,83
+40,David,Male,38,3,50,0,Low,44
