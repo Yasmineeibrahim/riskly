@@ -60,16 +60,16 @@ html, body {
 }
 .login-content {
     position: fixed;
-    top: 0;
+    top: 36vh;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: auto;
     z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    pointer-events: none; /* Prevents accidental interaction, remove if you add a form */
+    justify-content: flex-start;
+    pointer-events: none;
 }
 .login-content > * {
     pointer-events: auto;
@@ -137,4 +137,24 @@ html, body {
 }
 .submit-btn:active svg circle {
     fill: #b0b6f9;
+}
+.ai-highlight {
+    color: #b0b6f9;
+}
+.ai-white {
+    color: #fff;
+}
+.site-logo {
+    position: fixed;
+    top: 2.2rem;
+    left: 2.2rem;
+    z-index: 10;
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #b0b6f9;
+    letter-spacing: 0.04em;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    user-select: none;
+    pointer-events: none;
 }
