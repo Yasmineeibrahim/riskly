@@ -7,11 +7,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 import numpy as np
-import seaborn as sns
 
 import shap
 
-shap.initjs()
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
