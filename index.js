@@ -38,6 +38,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'loginPage.html'));
 });
 
+app.get('/mainDashboard.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'mainDashboardComponent', 'mainDashboard.html'));
+});
+
 app.post("/api/advisorLogin", async (req, res) => {
   console.log("Received advisor login request:", req.body);
   let { email, password } = req.body;
