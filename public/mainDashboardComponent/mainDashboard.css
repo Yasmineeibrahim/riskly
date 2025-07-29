@@ -31,9 +31,6 @@ html, body {
     opacity: 0.9;
 }
 .site-logo {
-    position: fixed;
-    top: 2.2rem;
-    left: 2.2rem;
     z-index: 10;
     display: flex;
     align-items: center;
@@ -54,6 +51,17 @@ html, body {
     font-size: 2rem;
     font-weight: 700;
 }
+.site-logo,
+.nav-bar-container {
+  pointer-events: auto; /* re-enable interaction */
+}
+
+.main-nav {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: flex-end;
+  width: 100%;
+}
 
 .purple-overlay{
     position: fixed;
@@ -63,4 +71,123 @@ html, body {
     height: 100vh;
     background: rgba(42, 31, 54, 0.7);
     z-index: 1;
+}
+.header-bar {
+  position: fixed;
+  top: 2.2rem;
+  left: 10;
+  width: 100%;
+  left: 2.2rem;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  pointer-events: none; 
+}
+
+
+.nav-bar-container {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 8px 20px;
+  width:80%;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-right: 4rem; /* move left by 2rem */
+}
+
+.main-nav {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.main-nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 12px;
+  transition: background-color 0.3s;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.main-nav a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+    flex-grow: 1;
+}
+
+.nav-search {
+    flex-grow: 0.8;
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-family: 'plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.nav-search::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.nav-search:focus {
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.search-btn {
+  background-color: #b0b6f9;
+  border: none;
+    border-radius: 50%;  
+  padding: 6px 10px;
+    width: 34px;             /* fixed width & height */
+  height: 34px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.search-btn i {
+  font-size: 0.6rem;
+}
+
+.icon-btn {
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+    padding: 6px;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.icon-btn i {
+  font-size: 0.9rem;
+  pointer-events: none;
 }

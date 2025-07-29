@@ -1,23 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>riskly</title>
-    <link rel="icon" type="image/svg+xml" href="magnifying-glass-chart-solid-full.svg">
-    <link rel="stylesheet" href="mainDashboardComponent/mainDashboard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/svg+xml" href="magnifying-glass-chart-solid-full.svg">
-</head>
-<body>
-    <div class="site-logo">
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="magnifying-glass-chart-solid-full.svg"
+    />
+    <link rel="stylesheet" href="mainDashboardComponent/mainDashboard.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="magnifying-glass-chart-solid-full.svg"
+    />
+  </head>
+  <body>
+    <div class="header-bar">
+      <div class="site-logo">
         <i class="fa-solid fa-magnifying-glass-chart"></i>
         <span>riskly.</span>
+      </div>
+      <div class="nav-bar-container">
+        <button class="icon-btn sort-btn" title="Sort">
+      <i class="fa-solid fa-arrow-up-wide-short"></i>
+    </button>
+    <button class="icon-btn filter-btn" title="Filter">
+      <i class="fa-solid fa-filter"></i>
+    </button>
+        <nav class="main-nav">
+            <div class="search-group">
+          <input type="text" class="nav-search" placeholder="Search..." />
+          <button class="search-btn">
+      <i class="fa fa-search"></i>
+    </button>
     </div>
+          <a href="#">Students</a>
+          <a href="#">Actions</a>
+          <a href="#">Performance</a>
+        </nav>
+      </div>
+    </div>
+
     <div class="background-video-container">
-        <video id="bg-video" src="mainDashboardComponent/323-135992580.mp4" autoplay loop muted playsinline></video>
-        <div class="purple-overlay"></div>
+      <video
+        id="bg-video"
+        src="mainDashboardComponent/323-135992580.mp4"
+        autoplay
+        loop
+        muted
+        playsinline
+      ></video>
+      <div class="purple-overlay"></div>
     </div>
-</body>
- <script src="mainDashboardComponent/mainDashboard.js"></script>
+  </body>
+  <script src="mainDashboardComponent/mainDashboard.js"></script>
 </html>
