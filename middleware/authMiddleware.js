@@ -1,6 +1,4 @@
 import jwt from 'jsonwebtoken';
-import Teacher from '../models/teacherModel.js';
-import Student from '../models/studentModel.js';
 
 export const protect = async (req, res, next) => {
   let token = null;

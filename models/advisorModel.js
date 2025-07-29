@@ -14,6 +14,6 @@ const advisorSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  Students: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],
+Students: [{ type: Number }], // <- array of integers
 });
 export default mongoose.model("Advisor", advisorSchema);
