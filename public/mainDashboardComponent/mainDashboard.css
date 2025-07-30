@@ -193,9 +193,7 @@ html, body {
 }
 
 .student-ids-list {
-    position: absolute;
-    top: 7rem;
-    left: 2.2rem;
+
     background: rgba(30,32,60,0.85);
     color: #b0b6f9;
     padding: 1.2em 2em;

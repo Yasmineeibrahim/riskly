@@ -1,4 +1,5 @@
 window.addEventListener("DOMContentLoaded", function () {
+
   // Get advisor's student IDs from localStorage
   let advisorStudents = [];
   try {
@@ -71,7 +72,14 @@ Promise.all([
         </table>
     `;
     container.innerHTML = tableHTML;
-    document.body.appendChild(container);
+    const tableSection = document.getElementById("student-table-section");
+if (tableSection) {
+  tableSection.appendChild(container);
+} else {
+  console.warn("No element with id 'student-table-section' found");
+  document.body.appendChild(container); // fallback
+}
+
 })
 .catch(error => {
     console.error('Error fetching CSVs:', error);
