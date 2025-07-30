@@ -251,3 +251,37 @@ html, body {
 .students-table tr:last-child td {
     border-bottom: none;
 }
+.hero-video-section {
+  display: flex;
+  justify-content: flex-end; /* moves video to the right */
+  align-items: center;
+  z-index: 5;
+  position: relative;
+background: #0d0310;
+}
+
+.hero-video-section video {
+  max-width: 27%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.background-video-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.background-video-container video {
+  width: 100%;
+  height: auto;
+}
+
+.purple-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128, 0, 128, 0.4);
+}

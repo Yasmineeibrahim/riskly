@@ -14,13 +14,9 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="magnifying-glass-chart-solid-full.svg"
-    />
   </head>
   <body>
+    <!-- Header Bar -->
     <div class="header-bar">
       <div class="site-logo">
         <i class="fa-solid fa-magnifying-glass-chart"></i>
@@ -28,18 +24,18 @@
       </div>
       <div class="nav-bar-container">
         <button class="icon-btn sort-btn" title="Sort">
-      <i class="fa-solid fa-arrow-up-wide-short"></i>
-    </button>
-    <button class="icon-btn filter-btn" title="Filter">
-      <i class="fa-solid fa-filter"></i>
-    </button>
+          <i class="fa-solid fa-arrow-up-wide-short"></i>
+        </button>
+        <button class="icon-btn filter-btn" title="Filter">
+          <i class="fa-solid fa-filter"></i>
+        </button>
         <nav class="main-nav">
-            <div class="search-group">
-          <input type="text" class="nav-search" placeholder="Search..." />
-          <button class="search-btn">
-      <i class="fa fa-search"></i>
-    </button>
-    </div>
+          <div class="search-group">
+            <input type="text" class="nav-search" placeholder="Search..." />
+            <button class="search-btn">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
           <a href="#">Students</a>
           <a href="#">Actions</a>
           <a href="#">Performance</a>
@@ -47,6 +43,18 @@
       </div>
     </div>
 
+    <!-- Hero Video Section -->
+    <section class="hero-video-section">
+      <video
+        src="mainDashboardComponent/dashboard-video.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+      ></video>
+    </section>
+
+    <!-- Background Video Section -->
     <div class="background-video-container">
       <video
         id="bg-video"
@@ -58,6 +66,7 @@
       ></video>
       <div class="purple-overlay"></div>
     </div>
+
+    <script src="mainDashboardComponent/mainDashboard.js"></script>
   </body>
-  <script src="mainDashboardComponent/mainDashboard.js"></script>
 </html>
