@@ -1,16 +1,25 @@
+console.log("app.js loaded successfully");
+
 window.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM Content Loaded");
     var video = document.getElementById('bg-video');
     if (video) {
         video.playbackRate = 0.6;
+        console.log("Video found and playback rate set");
+    } else {
+        console.log("Video element not found");
     }
 });
 
 //handle teacher login
 //get teacher login form from teacherLogin.html
 const Form = document.getElementById("login-form");
+console.log("Form element found:", Form);
 if (Form) {
+  console.log("Adding submit event listener to form");
   //add event listener for the submit event and collect email and password
   Form.addEventListener("submit", async (e) => {
+    console.log("Form submitted!");
     e.preventDefault();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;

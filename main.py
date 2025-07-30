@@ -17,7 +17,7 @@ pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 
 
-file_path = 'student_performance_riskly.csv'
+file_path = 'public\student_performance_riskly.csv'
 df = pd.read_csv(file_path)
 
 
@@ -117,3 +117,6 @@ shap.decision_plot(
     shap_values_class1[0],
     X_test.iloc[0]
 )
+
+one_hot_encoded[['StudentID', 'DropoutRisk', 'Underperform']].to_csv('public/student_risks.csv', index=False)
+
