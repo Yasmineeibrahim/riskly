@@ -5,7 +5,6 @@ html, body {
     height: 100vh;
     margin: 0;
     padding: 0;
-    overflow: hidden;
     font-family: 'Plus Jakarta Sans', 'Roboto', sans-serif;
 }
 .background-video-container {
@@ -201,7 +200,7 @@ html, body {
     box-shadow: 0 2px 12px rgba(0,0,0,0.10);
     max-height: 60vh;
     overflow-y: auto;
-    min-width: 160px;
+    min-width: 130px;
     z-index: 5;
 }
 .student-ids-list h2 {
@@ -255,7 +254,7 @@ html, body {
   align-items: center;
   z-index: 5;
   position: relative;
-  background: linear-gradient(to bottom, #2c2339, #46353f);
+  background: linear-gradient(to bottom, #0e0a2d, #46353f);
   height: 100vh; /* This ensures the gradient takes up full screen height */
 }
 
@@ -352,4 +351,19 @@ html, body {
 .feature i {
   font-size: 1.2rem;
   color: #b0b6f9;
+}
+
+.logout-btn {
+    background: #b0b6f9;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: color 0.3s, background-color 0.3s;
 }
