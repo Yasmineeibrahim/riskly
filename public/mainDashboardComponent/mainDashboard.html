@@ -14,6 +14,11 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <script
+  src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js"
+  type="module"
+></script>
+
   </head>
   <body>
     <!-- Header Bar -->
@@ -45,13 +50,41 @@
 
     <!-- Hero Video Section -->
     <section class="hero-video-section">
-      <video
-        src="dashboard-video.mp4"
-        autoplay
-        muted
-        loop
-        playsinline
-      ></video>
+         <div class="hero-content">
+    <div class="hero-text">
+      <h1>Welcome, Dr. Sarah Mansour</h1>
+      <h2>Empowering Academic Oversight</h2>
+      <p>
+        Dive into insightful data on student performance, risk levels, and engagement trends.
+        Navigate easily through metrics and take informed actions to support academic success.
+      </p>
+      <div class="hero-actions">
+        <button class="hero-btn">View Student Reports</button>
+        <button class="hero-btn secondary">Monitor Risk Trends</button>
+      </div>
+      <div class="hero-features">
+        <div class="feature">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Real-time Analytics</span>
+        </div>
+        <div class="feature">
+          <i class="fa-solid fa-user-check"></i>
+          <span>Actionable Insights</span>
+        </div>
+        <div class="feature">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Early Risk Detection</span>
+        </div>
+      </div>
+    </div>
+      <dotlottie-wc
+  src="https://lottie.host/e0e666d7-fb4e-4535-8d9f-eec689f9766c/KFWsTFfnOT.lottie"
+  style="width: 600px;height: 600px"
+  speed="1"
+  autoplay
+  loop
+></dotlottie-wc>
+</div>
     </section>
 
     <!-- Background Video Section -->
@@ -64,7 +97,6 @@
         muted
         playsinline
       ></video>
-      <div class="purple-overlay"></div>
     </div>
 
     <script src="mainDashboardComponent/mainDashboard.js"></script>
