@@ -52,7 +52,7 @@
     <section class="hero-video-section">
          <div class="hero-content">
     <div class="hero-text">
-      <h1>Welcome, Dr. Sarah Mansour</h1>
+      <h1>Welcome, <span id="teacher-name">Dr. Sarah Mansour</span></h1>
       <h2>Empowering Academic Oversight</h2>
       <p>
         Dive into insightful data on student performance, risk levels, and engagement trends.
@@ -99,6 +99,15 @@
       ></video>
     </div>
 
-    <script src="mainDashboardComponent/mainDashboard.js"></script>
+    <script src="mainDashboard.js"></script>
   </body>
+  <script>
+  // Replace with the actual key you use to store teacher name
+  const storedName = localStorage.getItem("advisorName");
+
+  if (storedName) {
+    document.getElementById("advisor_name").textContent = storedName;
+  }
+</script>
+
 </html>

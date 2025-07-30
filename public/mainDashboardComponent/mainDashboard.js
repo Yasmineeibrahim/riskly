@@ -1,9 +1,4 @@
 window.addEventListener("DOMContentLoaded", function () {
-  var video = document.getElementById("bg-video");
-  if (video) {
-    video.playbackRate = 0.6;
-  }
-
   // Get advisor's student IDs from localStorage
   let advisorStudents = [];
   try {
