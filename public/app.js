@@ -57,7 +57,7 @@ if (data.advisor && data.advisor.Students) {
   console.log("Students saved to localStorage. Current value:", localStorage.getItem("advisorStudents"));
 }
 
-        window.location.href = "/mainDashboard.html";
+        window.location.href = "mainDashboardComponent/mainDashboard.html";
       } else {
         alert(data.message || "Login failed");
       }

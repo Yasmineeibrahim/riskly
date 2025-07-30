@@ -35,7 +35,8 @@ mongoose
   });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'loginPage.html'));
+  res.sendFile(path.join(__dirname, 'public', 'loginPageComponent', 'loginPage.html'));
+
 });
 
 app.get('/mainDashboard.html', (req, res) => {
