@@ -57,13 +57,28 @@ window.addEventListener('DOMContentLoaded', function() {
 
             const container = document.createElement('div');
             container.className = 'student-ids-list';
-            const htmlContent = '<h2>My Students</h2>' +
-                students.map(s => `<div class="student-id">
-                    <b>ID:</b> ${s.StudentID} <b>Name:</b> ${s.Name} <b>Grade:</b> ${s.FinalGrade}
-                </div>`).join('');
             
-            container.innerHTML = htmlContent;
-            console.log('Generated HTML:', htmlContent);
+            // Create table with all columns
+            const tableHTML = `
+                <h2>My Students</h2>
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            ${headers.map(header => `<th>${header}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${students.map(student => `
+                            <tr>
+                                ${headers.map(header => `<td>${student[header] || ''}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            console.log('Generated table HTML:', tableHTML);
             console.log('Container element:', container);
             
             document.body.appendChild(container);

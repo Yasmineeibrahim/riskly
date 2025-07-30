@@ -220,3 +220,34 @@ html, body {
 .student-id:last-child {
     border-bottom: none;
 }
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: rgba(30, 32, 60, 0.9);
+    border-radius: 0.8rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.students-table th {
+    background: rgba(176, 182, 249, 0.2);
+    color: #e6eaff;
+    padding: 0.8rem 0.6rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(176, 182, 249, 0.3);
+}
+.students-table td {
+    padding: 0.7rem 0.6rem;
+    color: #b0b6f9;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.85rem;
+}
+.students-table tr:hover {
+    background: rgba(176, 182, 249, 0.1);
+}
+.students-table tr:last-child td {
+    border-bottom: none;
+}
