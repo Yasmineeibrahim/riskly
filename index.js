@@ -66,6 +66,8 @@ app.post("/api/advisorLogin", async (req, res) => {
     const { Password, ...advisorData } = advisor.toObject();
     const token = generateToken(advisor._id);
 
+    console.log("Advisor data being sent:", advisorData);
+    console.log("Students array present:", advisorData.Students);
     console.log("Login successful for advisor:", email);
     res.status(200).json({
       message: "Login successful",

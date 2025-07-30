@@ -191,3 +191,32 @@ html, body {
   font-size: 0.9rem;
   pointer-events: none;
 }
+
+.student-ids-list {
+    position: absolute;
+    top: 7rem;
+    left: 2.2rem;
+    background: rgba(30,32,60,0.85);
+    color: #b0b6f9;
+    padding: 1.2em 2em;
+    border-radius: 1.2em;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    max-height: 60vh;
+    overflow-y: auto;
+    min-width: 160px;
+    z-index: 5;
+}
+.student-ids-list h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 0.7em;
+}
+.student-id {
+    padding: 0.3em 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 1.05rem;
+}
+.student-id:last-child {
+    border-bottom: none;
+}

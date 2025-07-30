@@ -28,6 +28,8 @@ if (Form) {
       console.log("Login response status:", res.status);
       const data = await res.json();
       console.log("Login response data:", data);
+      console.log("Advisor object:", data.advisor);
+      console.log("Students array in response:", data.advisor?.Students);
 
       //if the response is ok, store the teacher id and name in localStorage and redirect to teacherDashboard.html
       if (res.ok) {
@@ -37,8 +39,13 @@ if (Form) {
 if (data.advisor && data.advisor._id) {
   localStorage.setItem("advisorId", data.advisor._id);
 }
-if (data.advisor && data.advisor.advisor_Name) {
-  localStorage.setItem("advisorName", data.advisor.Advisor_Name);
+if (data.advisor && data.advisor.advisor_name) {
+  localStorage.setItem("advisorName", data.advisor.advisor_name);
+}
+if (data.advisor && data.advisor.Students) {
+  console.log("Saving students to localStorage:", data.advisor.Students);
+  localStorage.setItem("advisorStudents", JSON.stringify(data.advisor.Students));
+  console.log("Students saved to localStorage. Current value:", localStorage.getItem("advisorStudents"));
 }
 
         window.location.href = "/mainDashboard.html";
