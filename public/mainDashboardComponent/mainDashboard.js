@@ -48,9 +48,17 @@ Promise.all([
             const obj = {};
             studentHeaders.forEach((header, i) => obj[header] = row[i]);
             const studentId = row[0];
-            const risks = riskMap[studentId] || { DropoutRisk: '', Underperform: '' };
+            const risks = riskMap[studentId] || { DropoutRisk: 'No Risk', Underperform: 'No Risk' };
             obj['DropoutRisk'] = risks.DropoutRisk;
             obj['Underperform'] = risks.Underperform;
+
+                    let riskCount = 0;
+        if (risks.DropoutRisk === "At Risk") riskCount++;
+        if (risks.Underperform === "At Risk") riskCount++;
+
+        obj['riskClass'] = riskCount === 0 ? 'no-risk' 
+                         : riskCount === 1 ? 'one-risk' 
+                         : 'two-risks';
             return obj;
         });
 
@@ -68,7 +76,7 @@ Promise.all([
             </thead>
             <tbody>
                 ${filteredStudents.map(student => `
-                    <tr>
+                    <tr class="${student.riskClass}">
                         ${allHeaders.map(header => `<td>${student[header] || ''}</td>`).join('')}
                     </tr>
                 `).join('')}
