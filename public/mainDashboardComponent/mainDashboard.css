@@ -496,18 +496,37 @@ width: 100%;
   background-color: orange !important;
   transition: none;
 }
+.form-wrapper {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 2rem;
+}
+
+.form-lottie-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
+  opacity: 1; /* adjust to desired visibility */
+}
+
+.form-lottie-bg dotlottie-wc {
+  width: 120%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .add-student-section {
-  padding: 2rem 3rem;
-  background: linear-gradient(to bottom right, #180035 70%, #fdefe4);
-  width: 100%;
-  color: #fff;
-  height: auto;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  z-index: 5;
-
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  border-radius: 1rem;
 }
+
 
 .add-student-section h2 {
   font-size: 1.8rem;
