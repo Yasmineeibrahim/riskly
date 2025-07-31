@@ -6,6 +6,7 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: 'Plus Jakarta Sans', 'Roboto', sans-serif;
+    overflow-x: hidden;
 }
 .background-video-container {
     position: fixed;
@@ -193,11 +194,9 @@ html, body {
 
 .student-ids-list {
 
-    background: rgba(30,32,60,0.85);
     color: #b0b6f9;
     padding: 1.2em 2em;
     border-radius: 1.2em;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
     max-height: 60vh;
     overflow-y: auto;
     min-width: 130px;
@@ -219,34 +218,55 @@ html, body {
 }
 
 .students-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    background: rgba(30, 32, 60, 0.9);
-    border-radius: 0.8rem;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: none;
+  backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow:none;
+  font-family: 'Rajdhani', sans-serif;
+  color: #e6eaff;
+}
+
+.students-table thead {
+  background: rgba(176, 182, 249, 0.2);
+}
+
+.students-table th, .students-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+#student-table-section {
+    position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  background: linear-gradient(to top right, #220051 60%, #9b6032);
 }
+#student-table-section::before {
+  content: "";
+  position: absolute;
+  inset: 0; /* top: 0; left: 0; right: 0; bottom: 0 */
+  background-image: url("Fantastic-HD-Black-Wallpapers.jpg"); /* Replace with your image path */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.35; /* Adjust for desired darkness */
+  z-index: 0; /* Keep it below actual content */
+}
+
 .students-table th {
-    background: rgba(176, 182, 249, 0.2);
-    color: #e6eaff;
-    padding: 0.8rem 0.6rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border-bottom: 1px solid rgba(176, 182, 249, 0.3);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  background-color: rgba(176, 182, 249, 0.15);
 }
-.students-table td {
-    padding: 0.7rem 0.6rem;
-    color: #b0b6f9;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    font-size: 0.85rem;
-}
-.students-table tr:hover {
-    background: rgba(176, 182, 249, 0.1);
-}
-.students-table tr:last-child td {
-    border-bottom: none;
+
+.students-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  transition: backgr
 }
 .hero-video-section {
   display: flex;
@@ -283,7 +303,7 @@ html, body {
   justify-content: space-between;
   width: 100%;
   padding: 0 4rem;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
     z-index: 3;
 }
@@ -292,7 +312,7 @@ html, body {
 .hero-text {
   color: #ffffff;
   max-width: 600px;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'plus jakarta sans', sans-serif;
 }
 
 .hero-text h1 {
