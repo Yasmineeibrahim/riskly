@@ -10,6 +10,7 @@ html, body {
       overflow-x: hidden;
         height: auto;        /* ✅ allow height to grow naturally */
 }
+
 * {
   box-sizing: border-box;
 }
@@ -501,22 +502,29 @@ width: 100%;
   background: linear-gradient(to bottom right, #180035 70%, #fdefe4);
   width: 100%;
   color: #fff;
+  height: auto;
   font-family: 'Plus Jakarta Sans', sans-serif;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   z-index: 5;
+
 }
 
 .add-student-section h2 {
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
+  margin-top: 5rem;
   color: #b0b6f9;
 }
 
 #add-student-form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(2, 1fr); /* force exactly two columns */
+  gap: 1.5rem 2rem;
+    margin-left: 60px;
+    margin-right: 60px;
 }
+
+
 
 .form-group {
   display: flex;
@@ -529,21 +537,22 @@ width: 100%;
   color: #e6eaff;
 }
 
-.form-group input,
-.form-group select {
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
+.form-group input {
+  padding: 0.5rem 0;
   border: none;
-  background: rgba(255, 255, 255, 0.12);
+  border-bottom: 2px solid #ccc;
+  background: transparent;
   color: #fff;
-  font-size: 0.95rem;
-  outline: none;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  border-radius: 0;
+  transition: border-color 0.3s ease;
+  margin-right: 100px;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  background: rgba(255, 255, 255, 0.25);
+.form-group input:focus{
+  outline: none;
+  border-bottom: 2px solid #000c91; /* accent color on focus */
+  background: transparent;
 }
 
 .form-actions {
@@ -552,4 +561,23 @@ width: 100%;
   justify-content: flex-start;
   align-items: center;
   margin-top: 1rem;
+}
+
+.form-group select {
+  background-color: transparent;  /* base background */
+  border: none;
+  border-bottom: 2px solid #aaa;
+  color: #040404;
+  padding: 8px 4px;
+  font-size: 16px;
+    margin-right: 100px;
+  appearance: none; /* removes native arrow styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #fff;
+  background-color: rgba(255, 255, 255, 0.1); /* subtle highlight on focus */
 }

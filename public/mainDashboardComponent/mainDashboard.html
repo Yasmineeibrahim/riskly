@@ -96,22 +96,18 @@
     <section id="student-table-section" class="student-table-wrapper">
       <!-- JavaScript will inject the student table here -->
     </section>
-    <section id="add-student-section" class="add-student-section">
+   <section id="add-student-section" class="add-student-section">
   <h2>Add and Predict a New Student</h2>
   <form id="add-student-form">
+
     <div class="form-group">
-      <label for="student-id">studentID</label>
-      <input type="number" id="student-id" name="student-id" required />
+      <label for="Name">Name</label>
+      <input type="text" id="Name" name="Name" required />
     </div>
 
     <div class="form-group">
-      <label for="student-name">Name</label>
-      <input type="text" id="student-name" name="student-name" required />
-    </div>
-
-    <div class="form-group">
-      <label for="student-gender">Gender</label>
-      <select id="student-gender" name="student-gender" required>
+      <label for="Gender">Gender</label>
+      <select id="Gender" name="Gender" required>
         <option value="">Select</option>
         <option value="Male">Male</option>
         <option value="Female">Female</option>
@@ -120,38 +116,45 @@
 
     <div class="form-group">
       <label for="AttendanceRate">Attendance Rate</label>
-      <input type="number" id="score1" name="score1" required />
+      <input type="number" id="AttendanceRate" name="AttendanceRate" required />
     </div>
 
     <div class="form-group">
       <label for="StudyHoursPerWeek">Study Hours Per Week</label>
-      <input type="number" id="score2" name="score2" required />
+      <input type="number" id="StudyHoursPerWeek" name="StudyHoursPerWeek" required />
     </div>
 
     <div class="form-group">
       <label for="PreviousGrade">Previous Grade</label>
-      <input type="number" id="score3" name="score3" required />
+      <input type="number" id="PreviousGrade" name="PreviousGrade" required />
     </div>
 
     <div class="form-group">
       <label for="ExtracurricularActivities">Extracurricular Activities</label>
-      <input type="number" id="score4" name="score4" required />
+      <input type="number" id="ExtracurricularActivities" name="ExtracurricularActivities" required />
     </div>
 
     <div class="form-group">
       <label for="ParentalSupport">Parental Support</label>
-      <input type="number" id="score5" name="score5" required />
+      <select id="ParentalSupport" name="ParentalSupport" required>
+        <option value="">Select</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
     </div>
 
     <div class="form-group">
       <label for="FinalGrade">Final Grade</label>
-      <input type="number" id="score6" name="score6" required />
+      <input type="number" id="FinalGrade" name="FinalGrade" required />
     </div>
+
     <div class="form-actions">
       <button type="submit" class="hero-btn">Predict & Add Student</button>
     </div>
   </form>
 </section>
+
 
   </body>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
