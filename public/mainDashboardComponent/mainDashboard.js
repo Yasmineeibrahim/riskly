@@ -34,8 +34,12 @@ Promise.all([
     const riskLines = riskCSV.split('\n').filter(Boolean);
     const riskMap = {};
     riskLines.slice(1).forEach(line => {
-        const [id, dropout, underperform] = line.split(',');
-        riskMap[id] = { DropoutRisk: dropout, Underperform: underperform };
+        const [id, dropout, underperform] = line.split(',').map(val => val.trim());
+        riskMap[id] = {
+  DropoutRisk: dropout === "1" ? "At Risk" : "No Risk",
+  Underperform: underperform === "1" ? "At Risk" : "No Risk"
+};
+
     });
 
     const filteredStudents = studentRows
@@ -55,7 +59,7 @@ Promise.all([
     const container = document.createElement('div');
     container.className = 'student-ids-list';
     const tableHTML = `
-        <h2>My Students</h2>
+        <h2 class="student-table-title">My Assigned Students</h2>
         <table class="students-table">
             <thead>
                 <tr>
