@@ -255,8 +255,27 @@ html, body {
   z-index: 5;
   position: relative;
   background: linear-gradient(to bottom, #0e0a2d, #46353f);
-  height: 100vh; /* This ensures the gradient takes up full screen height */
+  height: 100vh; 
 }
+
+.hero-bg-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, #0e0a2d, #46353f);
+}
+
+.hero-particles-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 
 .hero-content {
   display: flex;
@@ -266,7 +285,9 @@ html, body {
   padding: 0 4rem;
   max-width: 1400px;
   margin: 0 auto;
+    z-index: 3;
 }
+
 
 .hero-text {
   color: #ffffff;

@@ -44,15 +44,21 @@
           <a href="#">Performance</a>
         </nav>
         <button class="logout-btn" title="Logout">logout
+
         </button>
       </div>
     </div>
 
     <!-- Hero Video Section -->
     <section class="hero-video-section">
+          <div class="hero-bg-gradient"></div>
+  <video class="hero-particles-video" autoplay muted loop playsinline>
+    <source src="videoplayback.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
       <div class="hero-content">
         <div class="hero-text">
-          <h1>Welcome, <span id="teacher-name">Dr. Sarah Mansour</span></h1>
+          <h1>Welcome, <span id="advisor-name">Dr. Sarah Mansour</span></h1>
           <h2>Empowering Academic Oversight</h2>
           <p>
             Dive into insightful data on student performance, risk levels, and
@@ -97,7 +103,7 @@
     const storedName = localStorage.getItem("advisorName");
 
     if (storedName) {
-      document.getElementById("advisor_name").textContent = storedName;
+      document.getElementById("advisor-name").textContent = storedName;
     }
   </script>
 </html>
