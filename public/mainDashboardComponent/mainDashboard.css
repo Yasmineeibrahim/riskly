@@ -379,6 +379,14 @@ width: 100%;
 
 .hero-btn:hover {
   background-color: #949af5;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(176, 182, 249, 0.3);
+}
+
+.hero-btn.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .hero-btn.secondary {
@@ -386,9 +394,6 @@ width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-.hero-btn.secondary:hover {
-  background-color: rgba(255, 255, 255, 0.25);
-}
 
 .hero-features {
   display: flex;
@@ -489,4 +494,62 @@ width: 100%;
 .highlighted-text-active {
   background-color: orange !important;
   transition: none;
+}
+
+.add-student-section {
+  padding: 2rem 3rem;
+  background: linear-gradient(to bottom right, #180035 70%, #fdefe4);
+  width: 100%;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  z-index: 5;
+}
+
+.add-student-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #b0b6f9;
+}
+
+#add-student-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  color: #e6eaff;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: background-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.form-actions {
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 1rem;
 }
