@@ -7,6 +7,7 @@ html, body {
     padding: 0;
     font-family: 'Plus Jakarta Sans', 'Roboto', sans-serif;
       scroll-behavior: smooth;
+      overflow-x: hidden;
         height: auto;        /* ✅ allow height to grow naturally */
 }
 * {
@@ -468,4 +469,11 @@ width: 100%;
 }
 .alert-mail-btn:hover {
   background-color: #7a4828;
+}
+
+.alert-mail-btn:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
