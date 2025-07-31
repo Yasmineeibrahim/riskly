@@ -6,9 +6,13 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: 'Plus Jakarta Sans', 'Roboto', sans-serif;
-    overflow-x: hidden;
       scroll-behavior: smooth;
+        height: auto;        /* ✅ allow height to grow naturally */
 }
+* {
+  box-sizing: border-box;
+}
+
 .background-video-container {
     position: fixed;
     top: 0;
@@ -30,6 +34,11 @@ html, body {
     object-fit: cover;
     pointer-events: none;
     opacity: 0.9;
+}
+.students-table,
+.student-ids-list {
+  width: 100%;
+  overflow-x: auto;
 }
 .site-logo {
     z-index: 10;
@@ -194,13 +203,16 @@ html, body {
 }
 
 .student-ids-list {
-
+width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
     color: #b0b6f9;
     padding: 1.2em 2em;
     border-radius: 1.2em;
     max-height: 60vh;
     overflow-y: auto;
-    min-width: 130px;
+    min-width: 120px;
     z-index: 5;
 }
 .student-ids-list h2 {
@@ -239,11 +251,19 @@ html, body {
   padding: 0.85rem 1rem;
   text-align: left;
   font-size: 0.95rem;
+    max-width: 200px;
+  white-space: normal;
+  word-break: break-word;
+  padding: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 #student-table-section {
     position: relative;
-    overflow: hidden;
+     width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  padding: 0 1rem;
+  box-sizing: border-box;
   background: linear-gradient(to top right, #220051 60%, #9b6032);
 }
 #student-table-section::before {
@@ -267,7 +287,6 @@ html, body {
 
 .students-table tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.08);
-  transition: backgr
 }
 .hero-video-section {
   display: flex;
@@ -434,4 +453,19 @@ html, body {
   margin-bottom: 1.2rem;
   color: #e6eaff;
   z-index: 1;
+}
+
+.alert-mail-btn {
+  background-color: #9b6032;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-block;    /* ✅ ensure button stays inline */
+  white-space: nowrap;      /* ✅ never wrap text inside */
+}
+.alert-mail-btn:hover {
+  background-color: #7a4828;
 }

@@ -62,7 +62,7 @@ Promise.all([
             return obj;
         });
 
-    const allHeaders = [...studentHeaders, 'DropoutRisk', 'Underperform'];
+    const allHeaders = [...studentHeaders, 'DropoutRisk', 'Underperform','Alert Mail'];
 
     const container = document.createElement('div');
     container.className = 'student-ids-list';
@@ -77,7 +77,13 @@ Promise.all([
             <tbody>
                 ${filteredStudents.map(student => `
                     <tr class="${student.riskClass}">
-                        ${allHeaders.map(header => `<td>${student[header] || ''}</td>`).join('')}
+${allHeaders.map(header => {
+  if (header === "Alert Mail") {
+    return `<td><button class="alert-mail-btn" data-id="${student.ID}">Send Alert</button></td>`;
+  }
+  return `<td>${student[header] || ''}</td>`;
+}).join('')}
+
                     </tr>
                 `).join('')}
             </tbody>
