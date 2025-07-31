@@ -1,5 +1,4 @@
 window.addEventListener("DOMContentLoaded", function () {
-  // Get advisor's student IDs from localStorage
   let advisorStudents = [];
   try {
     advisorStudents = JSON.parse(localStorage.getItem("advisorStudents")) || [];
@@ -8,7 +7,6 @@ window.addEventListener("DOMContentLoaded", function () {
     console.error("Error parsing advisorStudents from localStorage:", e);
   }
 
-  // If no students in localStorage, show a message
   if (advisorStudents.length === 0) {
     console.log("No students found for this advisor");
     const container = document.createElement("div");
@@ -19,11 +17,9 @@ window.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  // Fetch and display only the advisor's students from CSV
-  // Fetch and display advisor's students + their risk values
   Promise.all([
     fetch("/student_performance_riskly.csv").then((res) => res.text()),
-    fetch("/student_risks.csv").then((res) => res.text()), // ✅ fetch risks
+    fetch("/student_risks.csv").then((res) => res.text()),
   ])
     .then(([studentCSV, riskCSV]) => {
       const studentLines = studentCSV.split("\n").filter(Boolean);
@@ -33,9 +29,7 @@ window.addEventListener("DOMContentLoaded", function () {
       const riskLines = riskCSV.split("\n").filter(Boolean);
       const riskMap = {};
       riskLines.slice(1).forEach((line) => {
-        const [id, dropout, underperform] = line
-          .split(",")
-          .map((val) => val.trim());
+        const [id, dropout, underperform] = line.split(",").map((val) => val.trim());
         riskMap[id] = {
           DropoutRisk: dropout === "1" ? "At Risk" : "No Risk",
           Underperform: underperform === "1" ? "At Risk" : "No Risk",
@@ -60,11 +54,7 @@ window.addEventListener("DOMContentLoaded", function () {
           if (risks.Underperform === "At Risk") riskCount++;
 
           obj["riskClass"] =
-            riskCount === 0
-              ? "no-risk"
-              : riskCount === 1
-              ? "one-risk"
-              : "two-risks";
+            riskCount === 0 ? "no-risk" : riskCount === 1 ? "one-risk" : "two-risks";
           return obj;
         });
 
@@ -87,9 +77,7 @@ window.addEventListener("DOMContentLoaded", function () {
           const isDisabled = student.riskClass === "no-risk";
           return `
           <tr class="${student.riskClass}">
-            ${allHeaders
-              .map((header) => `<td>${student[header] || ""}</td>`)
-              .join("")}
+            ${allHeaders.map((header) => `<td>${student[header] || ""}</td>`).join("")}
             <td>
               <button class="alert-mail-btn" ${isDisabled ? "disabled" : ""}>
                 Send Alert
@@ -108,16 +96,17 @@ window.addEventListener("DOMContentLoaded", function () {
         tableSection.appendChild(container);
       } else {
         console.warn("No element with id 'student-table-section' found");
-        document.body.appendChild(container); // fallback
+        document.body.appendChild(container);
       }
     })
     .catch((error) => {
       console.error("Error fetching CSVs:", error);
     });
+
+  // --- Search Highlight and Navigation Logic ---
   const searchInput = document.querySelector(".nav-search");
   const searchBtn = document.querySelector(".search-btn");
 
-  // Create container for nav arrows
   let navContainer;
   let currentIndex = 0;
   let matches = [];
@@ -126,7 +115,7 @@ window.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".highlighted-text").forEach((el) => {
       const parent = el.parentNode;
       parent.replaceChild(document.createTextNode(el.textContent), el);
-      parent.normalize(); // merge adjacent text nodes
+      parent.normalize();
     });
     matches = [];
     currentIndex = 0;
@@ -163,7 +152,10 @@ window.addEventListener("DOMContentLoaded", function () {
     countSpan.style.color = "#fff";
     countSpan.style.fontSize = "0.9rem";
     countSpan.style.userSelect = "none";
-    updateCount();
+
+    function updateCount() {
+      countSpan.textContent = `${currentIndex + 1} / ${matches.length}`;
+    }
 
     prevBtn.addEventListener("click", () => {
       if (matches.length === 0) return;
@@ -182,12 +174,8 @@ window.addEventListener("DOMContentLoaded", function () {
     navContainer.appendChild(prevBtn);
     navContainer.appendChild(countSpan);
     navContainer.appendChild(nextBtn);
-
     document.body.appendChild(navContainer);
-
-    function updateCount() {
-      countSpan.textContent = `${currentIndex + 1} / ${matches.length}`;
-    }
+    updateCount();
   }
 
   function scrollToMatch(index) {
@@ -236,7 +224,6 @@ window.addEventListener("DOMContentLoaded", function () {
       node.childNodes &&
       !["SCRIPT", "STYLE", "NOSCRIPT", "IFRAME"].includes(node.tagName)
     ) {
-      // Recursively search children
       Array.from(node.childNodes).forEach((child) =>
         highlightMatchesInNode(child, searchTerm)
       );
@@ -244,62 +231,64 @@ window.addEventListener("DOMContentLoaded", function () {
   }
 
   function performSearch() {
-  const searchTerm = searchInput.value.trim().toLowerCase();
-  if (!searchTerm) return;
+    const searchTerm = searchInput?.value.trim().toLowerCase();
+    if (!searchTerm) return;
 
-  clearHighlights();
+    clearHighlights();
 
-  // Use TreeWalker to find all text nodes and highlight matches
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode: function (node) {
-        // Skip empty or whitespace-only nodes
-        return node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-      },
-    }
-  );
-
-  let currentNode;
-  while ((currentNode = walker.nextNode())) {
-    highlightMatchesInNode(currentNode, searchTerm);
-  }
-
-  if (matches.length === 0) {
-    alert("No matches found.");
-    return;
-  }
-
-  createNavArrows();
-  currentIndex = 0;
-  scrollToMatch(currentIndex);
-
-  // Optional: Remove highlights after 5 seconds
-  setTimeout(() => {
-    matches.forEach(span =>
-      span.classList.remove("highlighted-text", "highlighted-text-active")
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function (node) {
+          const parent = node.parentNode;
+          if (!parent || !parent.offsetParent) return NodeFilter.FILTER_SKIP;
+          if (["SCRIPT", "STYLE", "NOSCRIPT", "IFRAME"].includes(parent.tagName))
+            return NodeFilter.FILTER_SKIP;
+          return node.nodeValue.trim()
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP;
+        },
+      }
     );
-    if (navContainer) {
-      navContainer.remove();
-      navContainer = null;
+
+    const nodesToHighlight = [];
+    let currentNode;
+    while ((currentNode = walker.nextNode())) {
+      nodesToHighlight.push(currentNode);
     }
-    matches = [];
+
+    nodesToHighlight.forEach((node) => highlightMatchesInNode(node, searchTerm));
+
+    if (matches.length === 0) {
+      alert("No matches found.");
+      return;
+    }
+
+    createNavArrows();
     currentIndex = 0;
-  }, 5000);
-}
-if (searchBtn) {
-  searchBtn.addEventListener("click", () => {
-    console.log("Search button clicked");
-    performSearch();
+    scrollToMatch(currentIndex);
+
+    setTimeout(() => {
+      matches.forEach((span) =>
+        span.classList.remove("highlighted-text", "highlighted-text-active")
+      );
+      if (navContainer) {
+        navContainer.remove();
+        navContainer = null;
+      }
+      matches = [];
+      currentIndex = 0;
+    }, 5000);
+  }
+
+  if (searchBtn) {
+    searchBtn.addEventListener("click", performSearch);
+  } else {
+    console.warn("Search button not found");
+  }
+
+  searchInput?.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") performSearch();
   });
-} else {
-  console.warn("Search button not found");
-}
-
-
-searchInput?.addEventListener("keydown", function (e) {
-  if (e.key === "Enter") performSearch();
-});
-
 });
