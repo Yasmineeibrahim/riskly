@@ -481,3 +481,12 @@ width: 100%;
   box-shadow: none;
 }
 
+.highlighted-text {
+  background-color: yellow;
+  transition: background-color 1s ease;
+}
+
+.highlighted-text-active {
+  background-color: orange !important;
+  transition: none;
+}

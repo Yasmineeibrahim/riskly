@@ -68,11 +68,7 @@ window.addEventListener("DOMContentLoaded", function () {
           return obj;
         });
 
-      const allHeaders = [
-        ...studentHeaders,
-        "DropoutRisk",
-        "Underperform",
-      ];
+      const allHeaders = [...studentHeaders, "DropoutRisk", "Underperform"];
 
       const container = document.createElement("div");
       container.className = "student-ids-list";
@@ -81,24 +77,28 @@ window.addEventListener("DOMContentLoaded", function () {
         <table class="students-table">
             <thead>
                 <tr>
-        ${allHeaders.map(header => `<th>${header}</th>`).join('')}
+        ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
         <th>Alert Mail</th>
       </tr>
             </thead>
              <tbody>
-      ${filteredStudents.map(student => {
-        const isDisabled = student.riskClass === 'no-risk';
-        return `
+      ${filteredStudents
+        .map((student) => {
+          const isDisabled = student.riskClass === "no-risk";
+          return `
           <tr class="${student.riskClass}">
-            ${allHeaders.map(header => `<td>${student[header] || ''}</td>`).join('')}
+            ${allHeaders
+              .map((header) => `<td>${student[header] || ""}</td>`)
+              .join("")}
             <td>
-              <button class="alert-mail-btn" ${isDisabled ? 'disabled' : ''}>
+              <button class="alert-mail-btn" ${isDisabled ? "disabled" : ""}>
                 Send Alert
               </button>
             </td>
           </tr>
         `;
-      }).join('')}
+        })
+        .join("")}
     </tbody>
         </table>
     `;
@@ -114,4 +114,192 @@ window.addEventListener("DOMContentLoaded", function () {
     .catch((error) => {
       console.error("Error fetching CSVs:", error);
     });
+  const searchInput = document.querySelector(".nav-search");
+  const searchBtn = document.querySelector(".search-btn");
+
+  // Create container for nav arrows
+  let navContainer;
+  let currentIndex = 0;
+  let matches = [];
+
+  function clearHighlights() {
+    document.querySelectorAll(".highlighted-text").forEach((el) => {
+      const parent = el.parentNode;
+      parent.replaceChild(document.createTextNode(el.textContent), el);
+      parent.normalize(); // merge adjacent text nodes
+    });
+    matches = [];
+    currentIndex = 0;
+    if (navContainer) {
+      navContainer.remove();
+      navContainer = null;
+    }
+  }
+
+  function createNavArrows() {
+    navContainer = document.createElement("div");
+    navContainer.style.position = "fixed";
+    navContainer.style.top = "60px";
+    navContainer.style.right = "20px";
+    navContainer.style.zIndex = 9999;
+    navContainer.style.background = "rgba(0,0,0,0.6)";
+    navContainer.style.borderRadius = "8px";
+    navContainer.style.padding = "5px";
+    navContainer.style.display = "flex";
+    navContainer.style.gap = "5px";
+    navContainer.style.alignItems = "center";
+
+    const prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "⬆️";
+    prevBtn.title = "Previous match";
+    prevBtn.style.cursor = "pointer";
+
+    const nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "⬇️";
+    nextBtn.title = "Next match";
+    nextBtn.style.cursor = "pointer";
+
+    const countSpan = document.createElement("span");
+    countSpan.style.color = "#fff";
+    countSpan.style.fontSize = "0.9rem";
+    countSpan.style.userSelect = "none";
+    updateCount();
+
+    prevBtn.addEventListener("click", () => {
+      if (matches.length === 0) return;
+      currentIndex = (currentIndex - 1 + matches.length) % matches.length;
+      scrollToMatch(currentIndex);
+      updateCount();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (matches.length === 0) return;
+      currentIndex = (currentIndex + 1) % matches.length;
+      scrollToMatch(currentIndex);
+      updateCount();
+    });
+
+    navContainer.appendChild(prevBtn);
+    navContainer.appendChild(countSpan);
+    navContainer.appendChild(nextBtn);
+
+    document.body.appendChild(navContainer);
+
+    function updateCount() {
+      countSpan.textContent = `${currentIndex + 1} / ${matches.length}`;
+    }
+  }
+
+  function scrollToMatch(index) {
+    matches.forEach((span, i) => {
+      if (i === index) {
+        span.classList.add("highlighted-text-active");
+        span.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        span.classList.remove("highlighted-text-active");
+      }
+    });
+  }
+
+  function highlightMatchesInNode(node, searchTerm) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.nodeValue;
+      const lowerText = text.toLowerCase();
+      const lowerSearch = searchTerm.toLowerCase();
+
+      if (!lowerText.includes(lowerSearch)) return;
+
+      const frag = document.createDocumentFragment();
+      let startIndex = 0;
+      let matchIndex;
+
+      while ((matchIndex = lowerText.indexOf(lowerSearch, startIndex)) !== -1) {
+        const before = text.slice(startIndex, matchIndex);
+        const match = text.slice(matchIndex, matchIndex + searchTerm.length);
+        if (before) frag.appendChild(document.createTextNode(before));
+
+        const span = document.createElement("span");
+        span.className = "highlighted-text";
+        span.textContent = match;
+        frag.appendChild(span);
+        matches.push(span);
+
+        startIndex = matchIndex + searchTerm.length;
+      }
+
+      const after = text.slice(startIndex);
+      if (after) frag.appendChild(document.createTextNode(after));
+
+      node.parentNode.replaceChild(frag, node);
+    } else if (
+      node.nodeType === Node.ELEMENT_NODE &&
+      node.childNodes &&
+      !["SCRIPT", "STYLE", "NOSCRIPT", "IFRAME"].includes(node.tagName)
+    ) {
+      // Recursively search children
+      Array.from(node.childNodes).forEach((child) =>
+        highlightMatchesInNode(child, searchTerm)
+      );
+    }
+  }
+
+  function performSearch() {
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  if (!searchTerm) return;
+
+  clearHighlights();
+
+  // Use TreeWalker to find all text nodes and highlight matches
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode: function (node) {
+        // Skip empty or whitespace-only nodes
+        return node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      },
+    }
+  );
+
+  let currentNode;
+  while ((currentNode = walker.nextNode())) {
+    highlightMatchesInNode(currentNode, searchTerm);
+  }
+
+  if (matches.length === 0) {
+    alert("No matches found.");
+    return;
+  }
+
+  createNavArrows();
+  currentIndex = 0;
+  scrollToMatch(currentIndex);
+
+  // Optional: Remove highlights after 5 seconds
+  setTimeout(() => {
+    matches.forEach(span =>
+      span.classList.remove("highlighted-text", "highlighted-text-active")
+    );
+    if (navContainer) {
+      navContainer.remove();
+      navContainer = null;
+    }
+    matches = [];
+    currentIndex = 0;
+  }, 5000);
+}
+if (searchBtn) {
+  searchBtn.addEventListener("click", () => {
+    console.log("Search button clicked");
+    performSearch();
+  });
+} else {
+  console.warn("Search button not found");
+}
+
+
+searchInput?.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") performSearch();
+});
+
 });
