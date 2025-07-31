@@ -262,7 +262,7 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(to bottom, #0e0a2d, #46353f);
+  background: linear-gradient(to bottom right, #220051 60%, #9b6032);
 }
 
 .hero-particles-video {
