@@ -163,13 +163,14 @@ html, body {
 .search-btn {
   background-color: #b0b6f9;
   border: none;
-    border-radius: 50%;  
+    border-radius: 80%;  
   padding: 6px 10px;
     width: 34px;             /* fixed width & height */
   height: 34px;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-right: 60px;
 }
 
 .search-btn:hover {
@@ -180,29 +181,34 @@ html, body {
   font-size: 0.6rem;
 }
 
-.icon-btn {
-  background-color: transparent;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
+.table-controls {
   display: flex;
-  align-items: center;
-    padding: 6px;
-  justify-content: center;
-  color: white;
+  justify-content: flex-end;
+  padding: 10px 20px;
+transform: translateX(-30px) translateY(70px);
+
+}
+
+.table-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.icon-btn {
+  background-color:transparent;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 50%;
+  color: #ffffff;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 16px;
+  transition: background-color 0.2s;
 }
 
 .icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color:  #b0b6f937; 
 }
 
-.icon-btn i {
-  font-size: 0.9rem;
-  pointer-events: none;
-}
 
 .student-ids-list {
 width: 100%;
@@ -510,8 +516,8 @@ width: 100%;
   height: 100%;
   z-index: 0;
   pointer-events: none;
-background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
-  opacity: 1; /* adjust to desired visibility */
+  background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
+  opacity: 1;
 }
 
 .form-lottie-bg dotlottie-wc {
