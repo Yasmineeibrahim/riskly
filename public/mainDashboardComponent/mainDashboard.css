@@ -544,11 +544,12 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
 .floating-label select {
   width: 100%;
   padding: 16px 12px 8px;
-  font-size: 16px;
+  font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f9f9f96c;
   outline: none;
+  color: #f2f2f2;
 }
 
 .floating-label label {
