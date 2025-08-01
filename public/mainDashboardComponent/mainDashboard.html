@@ -111,57 +111,53 @@
 
   <form id="add-student-form">
 
-    <div class="form-group">
+   <div class="form-group floating-label">
+      <input type="text" id="Name" name="Name" required placeholder=" " />
       <label for="Name">Name</label>
-      <input type="text" id="Name" name="Name" required />
     </div>
 
-    <div class="form-group">
-      <label for="Gender">Gender</label>
+    <div class="form-group floating-label">
       <select id="Gender" name="Gender" required>
-        <option value="">Select</option>
+        <option value="" disabled selected></option>
         <option value="Male">Male</option>
         <option value="Female">Female</option>
       </select>
+      <label for="Gender">Gender</label>
     </div>
 
-    <div class="form-group">
-      <label for="AttendanceRate">Attendance Rate</label>
-      <input type="number" id="AttendanceRate" name="AttendanceRate" required />
+    <div class="form-group floating-label">
+      <input type="number" id="AttendanceRate" name="AttendanceRate" required placeholder=" " />
+      <label for="AttendanceRate">Attendance Rate (%)</label>
     </div>
 
-    <div class="form-group">
+    <div class="form-group floating-label">
+      <input type="number" id="StudyHoursPerWeek" name="StudyHoursPerWeek" required placeholder=" " />
       <label for="StudyHoursPerWeek">Study Hours Per Week</label>
-      <input type="number" id="StudyHoursPerWeek" name="StudyHoursPerWeek" required />
     </div>
 
-    <div class="form-group">
+    <div class="form-group floating-label">
+      <input type="number" id="PreviousGrade" name="PreviousGrade" required placeholder=" " />
       <label for="PreviousGrade">Previous Grade</label>
-      <input type="number" id="PreviousGrade" name="PreviousGrade" required />
     </div>
 
-    <div class="form-group">
+    <div class="form-group floating-label">
+      <input type="number" id="ExtracurricularActivities" name="ExtracurricularActivities" required placeholder=" " />
       <label for="ExtracurricularActivities">Extracurricular Activities</label>
-      <input type="number" id="ExtracurricularActivities" name="ExtracurricularActivities" required />
     </div>
 
-    <div class="form-group">
-      <label for="ParentalSupport">Parental Support</label>
+    <div class="form-group floating-label">
       <select id="ParentalSupport" name="ParentalSupport" required>
-        <option value="">Select</option>
+        <option value="" disabled selected></option>
         <option value="High">High</option>
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select>
+      <label for="ParentalSupport">Parental Support</label>
     </div>
 
-    <div class="form-group">
+    <div class="form-group floating-label">
+      <input type="number" id="FinalGrade" name="FinalGrade" required placeholder=" " />
       <label for="FinalGrade">Final Grade</label>
-      <input type="number" id="FinalGrade" name="FinalGrade" required />
-    </div>
-
-    <div class="form-actions">
-      <button type="submit" class="hero-btn">Predict & Add Student</button>
     </div>
   </form>
 </section>

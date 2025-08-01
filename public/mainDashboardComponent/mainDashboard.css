@@ -528,76 +528,55 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
   border-radius: 1rem;
 }
 
-
 .add-student-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
-  margin-top: 5rem;
-  color: #b0b6f9;
+  font-size: 26px;
+  color:#b0b6f9;
+  text-align: left;
+  margin-bottom: 30px;
+}
+.floating-label {
+  position: relative;
+  margin-bottom: 24px;
 }
 
-#add-student-form {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* force exactly two columns */
-  gap: 1.5rem 2rem;
-    margin-left: 60px;
-    margin-right: 60px;
-}
-
-
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-weight: 500;
-  margin-bottom: 0.4rem;
-  color: #e6eaff;
-}
-
-.form-group input {
-  padding: 0.5rem 0;
-  border: none;
-  border-bottom: 2px solid #ccc;
-  background: transparent;
-  color: #fff;
-  font-size: 1rem;
-  border-radius: 0;
-  transition: border-color 0.3s ease;
-  margin-right: 100px;
-}
-
-.form-group input:focus{
-  outline: none;
-  border-bottom: 2px solid #000c91; /* accent color on focus */
-  background: transparent;
-}
-
-.form-actions {
-  grid-column: span 2;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-.form-group select {
-  background-color: transparent;  /* base background */
-  border: none;
-  border-bottom: 2px solid #aaa;
-  color: #040404;
-  padding: 8px 4px;
+/* Input and select styling */
+.floating-label input,
+.floating-label select {
+  width: 100%;
+  padding: 16px 12px 8px;
   font-size: 16px;
-    margin-right: 100px;
-  appearance: none; /* removes native arrow styling */
-  -webkit-appearance: none;
-  -moz-appearance: none;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  outline: none;
 }
 
-.form-group select:focus {
-  outline: none;
-  border-color: #fff;
-  background-color: rgba(255, 255, 255, 0.1); /* subtle highlight on focus */
+/* Label styling */
+.floating-label label {
+  position: absolute;
+  top: 14px;
+  left: 12px;
+  color: #6c63ff;
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.2s ease all;
+  background-color: transparent;
+}
+
+/* Floating effect when focused or filled */
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label,
+.floating-label select:focus + label,
+.floating-label select:valid + label {
+  top: -0.04px;
+  left: 10px;
+  font-size: 12px;
+  background-color: #fff;
+  padding: 0 4px;
+}
+
+/* Button styling */
+.form-actions {
+  text-align: center;
+  margin-top: 30px;
 }
