@@ -98,6 +98,8 @@ sortBtn?.addEventListener("click", () => {
   sortOptions.classList.toggle("hidden");
 });
 
+let sortOrder = {};
+
 sortOptions?.addEventListener("click", (e) => {
   const field = e.target.dataset.sort;
   if (!field) return;
@@ -107,55 +109,63 @@ sortOptions?.addEventListener("click", (e) => {
     console.warn(`Field '${field}' not found in student data.`);
     return;
   }
-  if (!field) return;
 
-  filteredStudents.sort((a, b) => {
-    const valA = a[field] || "";
-    const valB = b[field] || "";
+  // Show sort order options
+  const sortOrderMenu = document.getElementById("sort-order");
+  sortOrderMenu.classList.remove("hidden");
 
-    // Check for numbers
-    if (!isNaN(valA) && !isNaN(valB)) {
-      return parseFloat(valA) - parseFloat(valB);
-    } else {
-      return String(valA).localeCompare(String(valB));
-    }
+  sortOrderMenu.addEventListener("click", (event) => {
+    const order = event.target.dataset.order;
+    if (!order) return;
+
+    filteredStudents.sort((a, b) => {
+      const valA = a[field] || "";
+      const valB = b[field] || "";
+
+      // Check for numbers
+      if (!isNaN(valA) && !isNaN(valB)) {
+        return order === "asc" ? parseFloat(valA) - parseFloat(valB) : parseFloat(valB) - parseFloat(valA);
+      } else {
+        return order === "asc" ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
+      }
+    });
+
+    // Re-render table
+    const newTableHTML = `
+      <h2 class="student-table-title">My Assigned Students</h2>
+      <table class="students-table">
+        <thead>
+          <tr>
+            ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+            <th>Alert Mail</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredStudents
+            .map((student) => {
+              const isDisabled = student.riskClass === "no-risk";
+              return `
+                <tr class="${student.riskClass}">
+                  ${allHeaders
+                    .map((header) => `<td>${student[header] || ""}</td>`)
+                    .join("")}
+                  <td>
+                    <button class="alert-mail-btn" ${
+                      isDisabled ? "disabled" : ""
+                    }>
+                      Send Alert
+                    </button>
+                  </td>
+                </tr>
+              `;
+            })
+            .join("")}
+        </tbody>
+      </table>
+    `;
+    container.innerHTML = newTableHTML;
+    sortOrderMenu.classList.add("hidden");
   });
-
-  // Re-render table
-  const newTableHTML = `
-    <h2 class="student-table-title">My Assigned Students</h2>
-    <table class="students-table">
-      <thead>
-        <tr>
-          ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
-          <th>Alert Mail</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filteredStudents
-          .map((student) => {
-            const isDisabled = student.riskClass === "no-risk";
-            return `
-              <tr class="${student.riskClass}">
-                ${allHeaders
-                  .map((header) => `<td>${student[header] || ""}</td>`)
-                  .join("")}
-                <td>
-                  <button class="alert-mail-btn" ${
-                    isDisabled ? "disabled" : ""
-                  }>
-                    Send Alert
-                  </button>
-                </td>
-              </tr>
-            `;
-          })
-          .join("")}
-      </tbody>
-    </table>
-  `;
-  container.innerHTML = newTableHTML;
-  sortOptions.classList.add("hidden");
 });
 
       container.innerHTML = tableHTML;
