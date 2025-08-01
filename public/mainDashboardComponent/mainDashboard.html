@@ -108,7 +108,7 @@
   </div>
    <section id="add-student-section" class="add-student-section">
   <h2>Add and Predict a New Student</h2>
-
+<div class="form-layout">
   <form id="add-student-form">
 
    <div class="form-row">
@@ -121,7 +121,7 @@
     <label for="email">Email</label>
   </div>
 </div>
-    <div class="form-group floating-label">
+    <div class="floating-label gender">
       <select id="Gender" name="Gender" required>
         <option value="" disabled selected></option>
         <option value="Male">Male</option>
@@ -129,20 +129,28 @@
       </select>
       <label for="Gender">Gender</label>
     </div>
-
+    <div class="form-group three-column">
     <div class="form-group floating-label">
       <input type="number" id="AttendanceRate" name="AttendanceRate" required placeholder=" " />
       <label for="AttendanceRate">Attendance Rate (%)</label>
     </div>
 
-    <div class="form-group floating-label">
-      <input type="number" id="StudyHoursPerWeek" name="StudyHoursPerWeek" required placeholder=" " />
-      <label for="StudyHoursPerWeek">Study Hours Per Week</label>
-    </div>
-
+    
     <div class="form-group floating-label">
       <input type="number" id="PreviousGrade" name="PreviousGrade" required placeholder=" " />
       <label for="PreviousGrade">Previous Grade</label>
+    </div>
+
+    
+    <div class="form-group floating-label">
+      <input type="number" id="FinalGrade" name="FinalGrade" required placeholder=" " />
+      <label for="FinalGrade">Final Grade</label>
+    </div>
+    </div>
+     <div class="form-group three-column">
+    <div class="form-group floating-label">
+      <input type="number" id="StudyHoursPerWeek" name="StudyHoursPerWeek" required placeholder=" " />
+      <label for="StudyHoursPerWeek">Study Hours Per Week</label>
     </div>
 
     <div class="form-group floating-label">
@@ -159,12 +167,14 @@
       </select>
       <label for="ParentalSupport">Parental Support</label>
     </div>
-
-    <div class="form-group floating-label">
-      <input type="number" id="FinalGrade" name="FinalGrade" required placeholder=" " />
-      <label for="FinalGrade">Final Grade</label>
     </div>
   </form>
+   <div class="predict-btn-wrapper">
+      <button type="submit" form="add-student-form" class="predict-btn">
+        Add<br>&<br> Predict !!
+      </button>
+    </div>
+</div>
 </section>
 </div>
 

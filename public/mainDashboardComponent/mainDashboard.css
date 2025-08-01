@@ -531,6 +531,7 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
 .add-student-section h2 {
   font-size: 26px;
   color:#b0b6f9;
+  font-family:'Plus Jakarta Sans';
   text-align: left;
   margin-bottom: 30px;
 }
@@ -561,6 +562,7 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
   pointer-events: none;
   transition: 0.2s ease all;
   background-color: transparent;
+    font-family:'Plus Jakarta Sans';
 }
 
 /* Floating effect when focused or filled */
@@ -573,6 +575,7 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
   font-size: 12px;
   background-color: transparent;
   padding: 0 4px;
+    font-family:'Plus Jakarta Sans';
 }
 
 /* Button styling */
@@ -585,6 +588,7 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
 .floating-label input,
 .floating-label select {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family:'Plus Jakarta Sans';
 }
 
 /* Purple border on focus */
@@ -602,6 +606,18 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
   margin-right: 40px;
 }
 
+/* Add horizontal margin to the entire floating-label block */
+.floating-label.gender {
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+/* Ensure label stays inside the field */
+.floating-label {
+  position: relative;
+  margin-bottom: 20px;
+    font-family:'Plus Jakarta Sans';
+}
 /* Ensure each field takes half the width */
 .form-row .floating-label {
   flex: 1;
@@ -611,4 +627,51 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
 .floating-label {
   position: relative;
   margin-bottom: 20px;
+}
+
+/* Three-column layout */
+.form-group.three-column {
+  display: flex;
+  gap: 20px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+/* Each field takes equal space */
+.form-group.three-column .floating-label {
+  flex: 1;
+}
+
+/* Layout container for form and button */
+.form-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+}
+
+/* Form takes most of the space */
+#add-student-form {
+  flex: 1;
+}
+
+/* Button wrapper on the right */
+.predict-btn-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  background-color: #6c63ff;
+  border-radius: 12px;
+}
+
+/* Button styling */
+.predict-btn {
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 20px;
+    font-family:'Plus Jakarta Sans';
 }
