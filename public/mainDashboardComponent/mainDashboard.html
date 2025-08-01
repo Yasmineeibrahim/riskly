@@ -90,9 +90,21 @@
     <section id="student-table-section" class="student-table-wrapper">
   <div class="table-controls">
     <div class="table-actions">
-      <button class="icon-btn sort-btn" title="Sort">
-        <i class="fa-solid fa-arrow-up-wide-short"></i>
-      </button>
+      <div class="sort-wrapper">
+  <button class="icon-btn sort-btn" title="Sort">
+    <i class="fa-solid fa-arrow-up-wide-short"></i>
+  </button>
+  <div class="sort-options hidden" id="sort-options">
+    <button data-sort="id">Student ID</button>
+    <button data-sort="name">Name</button>
+    <button data-sort="attendance">Attendance</button>
+    <button data-sort="study">Study Hours</button>
+    <button data-sort="previous">Previous Grade</button>
+    <button data-sort="extracurricular">Extracurricular</button>
+    <button data-sort="final">Final Grade</button>
+  </div>
+</div>
+
       <button class="icon-btn filter-btn" title="Filter">
         <i class="fa-solid fa-filter"></i>
       </button>
