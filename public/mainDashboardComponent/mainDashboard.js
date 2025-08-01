@@ -35,6 +35,59 @@ window.addEventListener("DOMContentLoaded", function () {
           Underperform: underperform === "1" ? "At Risk" : "No Risk",
         };
       });
+      // --- FILTERING LOGIC ---
+const filterBtn = document.querySelector(".filter-btn");
+const filterOptions = document.getElementById("filter-options");
+
+filterBtn?.addEventListener("click", () => {
+  filterOptions.classList.toggle("hidden");
+});
+
+filterOptions?.addEventListener("click", (e) => {
+  const selectedClass = e.target.dataset.filter;
+  if (!selectedClass) return;
+
+  // Filter logic
+  const filtered = selectedClass === "all"
+    ? filteredStudents
+    : filteredStudents.filter((student) => student.riskClass === selectedClass);
+
+  // Re-render table with filtered data
+  const newFilteredHTML = `
+    <h2 class="student-table-title">My Assigned Students</h2>
+    <table class="students-table">
+      <thead>
+        <tr>
+          ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+          <th>Alert Mail</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered
+          .map((student) => {
+            const isDisabled = student.riskClass === "no-risk";
+            return `
+              <tr class="${student.riskClass}">
+                ${allHeaders
+                  .map((header) => `<td>${student[header] || ""}</td>`)
+                  .join("")}
+                <td>
+                  <button class="alert-mail-btn" ${
+                    isDisabled ? "disabled" : ""
+                  }>
+                    Send Alert
+                  </button>
+                </td>
+              </tr>
+            `;
+          })
+          .join("")}
+      </tbody>
+    </table>
+  `;
+  container.innerHTML = newFilteredHTML;
+  filterOptions.classList.add("hidden");
+});
 
       const filteredStudents = studentRows
         .filter((row) => advisorStudents.includes(Number(row[0])))

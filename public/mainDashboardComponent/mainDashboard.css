@@ -734,3 +734,28 @@ width: 100%;
 .hidden {
   display: none;
 }
+
+.filter-options {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+.filter-options button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.filter-options button:hover {
+  background-color: #f0f0f0;
+}
