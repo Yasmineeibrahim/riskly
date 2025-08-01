@@ -547,16 +547,15 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #f9f9f96c;
   outline: none;
 }
 
-/* Label styling */
 .floating-label label {
   position: absolute;
   top: 14px;
   left: 12px;
-  color: #6c63ff;
+  color: #ffffff;
   font-size: 14px;
   pointer-events: none;
   transition: 0.2s ease all;
@@ -571,7 +570,7 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
   top: -0.04px;
   left: 10px;
   font-size: 12px;
-  background-color: #fff;
+  background-color: transparent;
   padding: 0 4px;
 }
 
@@ -579,4 +578,17 @@ background: linear-gradient(to bottom right, #190035 60%, #aaaaaa);
 .form-actions {
   text-align: center;
   margin-top: 30px;
+}
+
+/* Add transition to input and select */
+.floating-label input,
+.floating-label select {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Purple border on focus */
+.floating-label input:focus,
+.floating-label select:focus {
+  border-color: #8949ff;
+  box-shadow: 6px 6px 6px 6px rgba(108, 99, 255, 0.2); /* optional glow effect */
 }
