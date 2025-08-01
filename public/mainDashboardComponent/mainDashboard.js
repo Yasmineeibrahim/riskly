@@ -86,10 +86,71 @@ window.addEventListener("DOMContentLoaded", function () {
           </tr>
         `;
         })
-        .join("")}
+        .join("")}  
     </tbody>
         </table>
     `;
+    // ---- SORTING ----
+const sortBtn = document.querySelector(".sort-btn");
+const sortOptions = document.getElementById("sort-options");
+
+sortBtn?.addEventListener("click", () => {
+  sortOptions.classList.toggle("hidden");
+});
+
+sortOptions?.addEventListener("click", (e) => {
+  const field = e.target.dataset.sort;
+  if (!field) return;
+
+  filteredStudents.sort((a, b) => {
+    const valA = a[field] || "";
+    const valB = b[field] || "";
+
+    // Check for numbers
+    if (!isNaN(valA) && !isNaN(valB)) {
+      return parseFloat(valA) - parseFloat(valB);
+    } else {
+      return String(valA).localeCompare(String(valB));
+    }
+  });
+
+  // Re-render table
+  const newTableHTML = `
+    <h2 class="student-table-title">My Assigned Students</h2>
+    <table class="students-table">
+      <thead>
+        <tr>
+          ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+          <th>Alert Mail</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredStudents
+          .map((student) => {
+            const isDisabled = student.riskClass === "no-risk";
+            return `
+              <tr class="${student.riskClass}">
+                ${allHeaders
+                  .map((header) => `<td>${student[header] || ""}</td>`)
+                  .join("")}
+                <td>
+                  <button class="alert-mail-btn" ${
+                    isDisabled ? "disabled" : ""
+                  }>
+                    Send Alert
+                  </button>
+                </td>
+              </tr>
+            `;
+          })
+          .join("")}
+      </tbody>
+    </table>
+  `;
+  container.innerHTML = newTableHTML;
+  sortOptions.classList.add("hidden");
+});
+
       container.innerHTML = tableHTML;
       const tableSection = document.getElementById("student-table-section");
       if (tableSection) {
