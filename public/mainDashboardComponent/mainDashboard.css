@@ -185,8 +185,9 @@ html, body {
   display: flex;
   justify-content: flex-end;
   padding: 10px 20px;
-transform: translateX(-30px) translateY(70px);
-
+  transform: translateX(-30px) translateY(70px);
+  position: relative;
+  z-index: 10000;
 }
 
 .table-actions {
@@ -698,6 +699,7 @@ width: 100%;
 .sort-wrapper {
   position: relative;
   display: inline-block;
+  z-index: 10000;
 }
 
 .sort-options {

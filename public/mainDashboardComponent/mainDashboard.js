@@ -102,6 +102,13 @@ sortOptions?.addEventListener("click", (e) => {
   const field = e.target.dataset.sort;
   if (!field) return;
 
+  // Ensure the field exists in the student objects
+  if (!filteredStudents[0] || !(field in filteredStudents[0])) {
+    console.warn(`Field '${field}' not found in student data.`);
+    return;
+  }
+  if (!field) return;
+
   filteredStudents.sort((a, b) => {
     const valA = a[field] || "";
     const valB = b[field] || "";
