@@ -2,10 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import mongoose from "mongoose";
+
 import jwt from 'jsonwebtoken';
-import Advisor from './models/advisorModel.js';
+import { AdvisorSQL } from './models/advisorModel.js';
 import studentRoutes from './routes/studentRoutes.js';
+import advisorRoutes from './routes/advisorRoutes.js';
 import sequelize from './config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,18 +23,16 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 dotenv.config();
 const PORT = process.env.PORT || 2000;
-const MONGOURL = process.env.MONGO_URL;
 
 // Add student routes
 app.use('/api/students', studentRoutes);
 
-// Connect to both MongoDB and MySQL
-Promise.all([
-  mongoose.connect(MONGOURL),
-  sequelize.authenticate()
-])
+// Add advisor routes
+app.use('/api/advisors', advisorRoutes);
+
+// Connect to MySQL database
+sequelize.authenticate()
 .then(() => {
-  console.log("Connected to MongoDB:", mongoose.connection.name);
   console.log("Connected to MySQL database");
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
@@ -52,6 +51,20 @@ app.get('/mainDashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'mainDashboardComponent', 'mainDashboard.html'));
 });
 
+// Route to fetch all advisors from SQL database (for testing)
+app.get("/api/advisors", async (req, res) => {
+  try {
+    const advisors = await AdvisorSQL.findAll();
+    res.status(200).json({
+      message: "Advisors fetched successfully",
+      advisors: advisors
+    });
+  } catch (error) {
+    console.error("Error fetching advisors:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/api/advisorLogin", async (req, res) => {
   console.log("Received advisor login request:", req.body);
   let { email, password } = req.body;
@@ -62,18 +75,25 @@ app.post("/api/advisorLogin", async (req, res) => {
   email = email.trim().toLowerCase();
   console.log("Processing login for email:", email);
   try {
-    const advisor = await Advisor.findOne({ Email: email });
+    // Find advisor in SQL database
+    const advisor = await AdvisorSQL.findOne({ 
+      where: { Email: email } 
+    });
+    
     if (!advisor) {
       console.log("Advisor not found for email:", email);
       return res.status(404).json({ message: "Advisor not found" });
     }
 
+    // Check password
     if (password !== advisor.Password) {
       console.log("Invalid password for advisor:", email);
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const { Password, ...advisorData } = advisor.toObject();
+    // Prepare advisor data
+    const { Password, ...advisorData } = advisor.toJSON();
+
     const token = generateToken(advisor._id);
 
     console.log("Advisor data being sent:", advisorData);
@@ -82,7 +102,7 @@ app.post("/api/advisorLogin", async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      advisor: advisorData,
+      advisor: advisorData
     });
   } catch (error) {
     console.error("Error during login:", error);

@@ -1,78 +1,115 @@
-import Advisor from "../models/teacherModel.js";
-//delete advisor using advisor id from teachers collection
-export const deleteTeachers = async (req, res) => {
+import { AdvisorSQL } from "../models/advisorModel.js";
+//delete advisor using advisor id from SQL database
+export const deleteAdvisors = async (req, res) => {
   try {
     const id = req.params.id;
-    const teacherExists = await Advisor.findById({ _id: id });
-    if (!teacherExists) {
+    
+    // Find and delete from SQL database
+    const sqlAdvisor = await AdvisorSQL.findByPk(id);
+    if (!sqlAdvisor) {
       return res.status(404).json({ message: "Advisor not found" });
     }
-    await Advisor.findByIdAndDelete(id);
-    return res.status(200).json({ message: "Advisor deleted successfully" });
-  } catch (errror) {
-    return res.status(400).json({ message: error.message });
-  }
-};
-//update advisor parameters using advisor id
-//this will update the advisor's information in the teachers collection
-export const updateTeacher = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const teacherExists = await Advisor.findOne({ _id: id });
-    if (!teacherExists) {
-      return res.status(404).json({ message: "Advisor not found" });
-    }
-    console.log("Update advisor request body:", req.body);
-    const updatedTeacher = await Advisor.findByIdAndUpdate(id, req.body, {
-      new: true,
+    
+    await sqlAdvisor.destroy();
+    
+    return res.status(200).json({ 
+      message: "Advisor deleted successfully"
     });
-    return res
-      .status(200)
-      .json({
-        message: "Advisor updated successfully",
-        Advisor: updatedTeacher,
-      });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
 };
-//add new advisor to the teachers collection
-//primary key is the teachers email address
-//if the input is an array, it will add multiple teachers at once
-export const addNewTeacher = async (req, res) => {
+//update advisor parameters using advisor id from SQL database
+export const updateAdvisor = async (req, res) => {
   try {
-    const teacherData = new Advisor(req.body);
-    const { Teacher_Name, Email, Password, Courses } = teacherData;
-
-    const existingTeacher = await Advisor.findOne({ Email });
-    if (existingTeacher) {
+    const id = req.params.id;
+    console.log("Update advisor request body:", req.body);
+    
+    // Find and update in SQL database
+    const sqlAdvisor = await AdvisorSQL.findByPk(id);
+    if (!sqlAdvisor) {
+      return res.status(404).json({ message: "Advisor not found" });
+    }
+    
+    await sqlAdvisor.update(req.body);
+    const updatedSQLAdvisor = await AdvisorSQL.findByPk(id);
+    
+    return res.status(200).json({
+      message: "Advisor updated successfully",
+      advisor: updatedSQLAdvisor
+    });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+//add new advisor to SQL database
+//primary key is the advisor's email address
+export const addNewAdvisor = async (req, res) => {
+  try {
+    const { Email, Password, advisor_name, Students } = req.body;
+    
+    // Check if advisor exists in SQL database
+    const existingSQLAdvisor = await AdvisorSQL.findOne({ where: { Email } });
+    
+    if (existingSQLAdvisor) {
       return res.status(400).json({ message: "Email already exists" });
     }
-    const savedTeacher = await teacherData.save();
-    return res
-      .status(201)
-      .json({ message: "Advisor added successfully", Advisor: savedTeacher });
-    //if the email already exists, it will return an error message
+    
+    // Generate a unique ID
+    const advisorId = Math.random().toString(36).substr(2, 9);
+    
+    // Create advisor data
+    const advisorData = {
+      _id: advisorId,
+      Email,
+      Password,
+      advisor_name,
+      Students: Students || []
+    };
+    
+    // Save to SQL database
+    const sqlAdvisor = await AdvisorSQL.create(advisorData);
+    
+    return res.status(201).json({ 
+      message: "Advisor added successfully", 
+      advisor: sqlAdvisor
+    });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
 };
 
-//get all teachers from the teachers collection
-export const fetchTeachers = async (req, res) => {
+//get all advisors from SQL database
+export const fetchAdvisors = async (req, res) => {
   try {
-    const teachers = await Advisor.find();
-    res.status(200).json(teachers);
+    // Fetch from SQL database
+    const sqlAdvisors = await AdvisorSQL.findAll();
+    
+    res.status(200).json({
+      message: "Advisors fetched successfully",
+      advisors: sqlAdvisors,
+      count: sqlAdvisors.length
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-// Fetch a specific advisor by ID
-export const fetchTeacherById = async (req, res) => {
+
+// Fetch a specific advisor by ID from SQL database
+export const fetchAdvisorById = async (req, res) => {
   try {
-    const advisor = await Advisor.findById(req.params.id);
-    if (!advisor) return res.status(404).json({ message: "Advisor not found" });
-    res.status(200).json(advisor);
+    const id = req.params.id;
+    
+    // Find advisor in SQL database
+    const advisor = await AdvisorSQL.findByPk(id);
+    
+    if (!advisor) {
+      return res.status(404).json({ message: "Advisor not found" });
+    }
+    
+    res.status(200).json({
+      advisor: advisor
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

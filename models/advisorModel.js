@@ -1,19 +1,32 @@
 import mongoose from "mongoose";
-const advisorSchema = new mongoose.Schema({
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
+
+// Sequelize model for MySQL
+export const AdvisorSQL = sequelize.define('Advisor', {
+  _id: {
+    type: DataTypes.STRING(24),
+    primaryKey: true,
+    allowNull: false
+  },
   Email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    unique: true
   },
   Password: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING(255),
+    allowNull: false
   },
   advisor_name: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING(255),
+    allowNull: false
   },
-Students: [{ type: Number }],
+  Students: {
+    type: DataTypes.JSON,
+    allowNull: true
+  }
+}, {
+  tableName: 'advisors',
+  timestamps: false
 });
-export default mongoose.model("Advisor", advisorSchema);
