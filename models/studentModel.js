@@ -39,6 +39,10 @@ const Student = sequelize.define('Student', {
   FinalGrade: {
     type: DataTypes.DECIMAL(5, 2),
     allowNull: false
+  },
+  Email: {
+    type: DataTypes.STRING(256),
+    allowNull: false
   }
 }, {
   tableName: 'students',

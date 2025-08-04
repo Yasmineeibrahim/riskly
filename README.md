@@ -46,3 +46,26 @@ Make sure to set up the following environment variables:
 - `DB_HOST` - MySQL host
 - `DB_PORT` - MySQL port
 - `JWT_SECRET` - JWT secret key
+- `EMAIL_USER` - Gmail address for sending emails
+- `EMAIL_PASS` - Gmail App Password (not regular password)
+
+### Email Setup Instructions
+
+To enable email functionality for high-risk alerts:
+
+1. **Enable 2-Factor Authentication** on your Gmail account
+2. **Generate an App Password**:
+   - Go to Google Account > Security > App Passwords
+   - Select "Mail" and your device
+   - Copy the generated 16-character password
+3. **Set Environment Variables**:
+   ```bash
+   EMAIL_USER=your-email@gmail.com
+   EMAIL_PASS=your-16-char-app-password
+   ```
+4. **Test Email Configuration**:
+   ```bash
+   GET /api/testEmail
+   ```
+
+**Note**: Regular Gmail passwords won't work. You must use an App Password.

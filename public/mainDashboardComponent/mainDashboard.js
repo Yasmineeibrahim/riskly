@@ -78,6 +78,9 @@ window.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(container);
       }
 
+      // Add event listeners for alert mail buttons
+      addAlertMailEventListeners();
+
       // ---- FILTERING ----
       const filterBtn = document.querySelector(".filter-btn");
       const filterOptions = document.getElementById("filter-options");
@@ -130,6 +133,9 @@ window.addEventListener("DOMContentLoaded", function () {
         `;
         container.innerHTML = newFilteredHTML;
         filterOptions.classList.add("hidden");
+        
+        // Re-add event listeners for the new buttons
+        addAlertMailEventListeners();
       });
 
       // ---- SORTING ----
@@ -207,6 +213,9 @@ window.addEventListener("DOMContentLoaded", function () {
           `;
           container.innerHTML = newTableHTML;
           sortOrderMenu.classList.add("hidden");
+          
+          // Re-add event listeners for the new buttons
+          addAlertMailEventListeners();
         });
       });
     })
@@ -403,3 +412,137 @@ window.addEventListener("DOMContentLoaded", function () {
     if (e.key === "Enter") performSearch();
   });
 });
+
+// Function to add event listeners for alert mail buttons
+function addAlertMailEventListeners() {
+  const alertButtons = document.querySelectorAll('.alert-mail-btn');
+  
+  alertButtons.forEach(button => {
+    button.addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      // Get the student ID from the table row
+      const row = this.closest('tr');
+      const studentIdCell = row.querySelector('td:first-child');
+      const studentId = studentIdCell.textContent.trim();
+      const studentName = row.querySelector('td:nth-child(2)').textContent.trim();
+      
+      if (!studentId) {
+        alert('Student ID not found');
+        return;
+      }
+
+      // Disable button to prevent multiple clicks
+      this.disabled = true;
+      this.textContent = 'Sending...';
+      
+      try {
+        const response = await fetch('/api/sendHighRiskEmail', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            studentId: parseInt(studentId)
+          })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          // Show success message
+          this.textContent = 'Sent ✓';
+          this.style.backgroundColor = '#4CAF50';
+          this.style.color = 'white';
+          
+          // Show success notification
+          showNotification(`High risk email sent successfully to ${studentName}`, 'success');
+          
+          // Reset button after 3 seconds
+          setTimeout(() => {
+            this.textContent = 'Send Alert';
+            this.style.backgroundColor = '';
+            this.style.color = '';
+            this.disabled = false;
+          }, 3000);
+        } else {
+          throw new Error(result.message || 'Failed to send email');
+        }
+      } catch (error) {
+        console.error('Error sending high risk email:', error);
+        
+        // Show error message
+        this.textContent = 'Failed';
+        this.style.backgroundColor = '#f44336';
+        this.style.color = 'white';
+        
+        // Show error notification
+        showNotification(`Failed to send email to ${studentName}: ${error.message}`, 'error');
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          this.textContent = 'Send Alert';
+          this.style.backgroundColor = '';
+          this.style.color = '';
+          this.disabled = false;
+        }, 3000);
+      }
+    });
+  });
+}
+
+// Function to show notifications
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+  
+  // Style the notification
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 10000;
+    max-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+  `;
+  
+  // Set background color based on type
+  if (type === 'success') {
+    notification.style.backgroundColor = '#4CAF50';
+  } else if (type === 'error') {
+    notification.style.backgroundColor = '#f44336';
+  } else {
+    notification.style.backgroundColor = '#2196F3';
+  }
+  
+  // Add CSS animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Add to page
+  document.body.appendChild(notification);
+  
+  // Remove after 5 seconds
+  setTimeout(() => {
+    notification.remove();
+  }, 5000);
+}

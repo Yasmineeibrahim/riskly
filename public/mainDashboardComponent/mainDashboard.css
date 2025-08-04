@@ -494,6 +494,44 @@ width: 100%;
   box-shadow: none;
 }
 
+/* Notification styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  z-index: 10000;
+  max-width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Success state for alert button */
+.alert-mail-btn.success {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Error state for alert button */
+.alert-mail-btn.error {
+  background-color: #f44336;
+  color: white;
+}
+
 .highlighted-text {
   background-color: yellow;
   transition: background-color 1s ease;
