@@ -223,6 +223,64 @@ const getHighRiskEmailOptions = async (studentId) => {
   }
 };
 
+// Function to get student email and create medium risk email options
+const getMediumRiskEmailOptions = async (studentId) => {
+  try {
+    // Find student by ID to get their email
+    console.log('🔍 Looking for student with ID:', studentId);
+    const student = await Student.findByPk(studentId);
+    
+    if (!student) {
+      console.log('❌ Student not found with ID:', studentId);
+      throw new Error('Student not found');
+    }
+
+    console.log('✅ Student found:', {
+      id: student.StudentID,
+      name: student.Name,
+      email: student.Email
+    });
+
+    return {
+      from: "riskly@ai.email",
+      to: student.Email, // Use student's email
+      subject: "Academic Warning from Riskly",
+      text: `Dear ${student.Name},\n\nThis is an academic warning notification from Riskly. Your current performance indicates areas that need attention.\n\nWe recommend:\n- Reviewing your study habits\n- Seeking additional support if needed\n- Regular check-ins with your advisor\n\nBest regards,\nRiskly Team`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #ff9800;">⚠️ Academic Warning</h2>
+          <p>Dear <strong>${student.Name}</strong>,</p>
+          <p>This is an academic warning notification from <strong>Riskly</strong>.</p>
+          <p style="color: #ff9800; font-weight: bold;">Your current performance indicates areas that need attention.</p>
+          
+          <div style="background-color: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 20px 0;">
+            <h3 style="color: #e65100; margin-top: 0;">We recommend:</h3>
+            <ul style="color: #333;">
+              <li>Reviewing your study habits</li>
+              <li>Seeking additional support if needed</li>
+              <li>Regular check-ins with your advisor</li>
+            </ul>
+          </div>
+          
+          <p style="color: #666; font-size: 14px;">This is a proactive warning to help you stay on track.</p>
+          <hr style="margin: 20px 0;">
+          <p>Best regards,<br><strong>Riskly Team</strong></p>
+        </div>
+      `,
+    };
+  } catch (error) {
+    console.error('❌ Error getting student email:', error);
+    // Fallback email options
+    return {
+      from: "riskly@ai.email",
+      to: "admin@riskly.com", // Fallback email
+      subject: "Academic Warning - Student Email Not Found",
+      text: "Academic warning notification from Riskly.",
+      html: "<p>Academic warning notification from <strong>Riskly</strong>.</p>",
+    };
+  }
+};
+
 // Function to send high risk email to student
 const sendHighRiskEmail = async (studentId) => {
   try {
@@ -252,6 +310,50 @@ const sendHighRiskEmail = async (studentId) => {
     }
   } catch (error) {
     console.error('Error in sendHighRiskEmail:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to send email';
+    if (error.code === 'EAUTH') {
+      errorMessage = 'Email authentication failed. Using mock email service.';
+    } else if (error.code === 'ECONNECTION') {
+      errorMessage = 'Email connection failed. Using mock email service.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    return { success: false, error: errorMessage };
+  }
+};
+
+// Function to send medium risk email to student
+const sendMediumRiskEmail = async (studentId) => {
+  try {
+    // Check if transporter is available
+    if (!transporter) {
+      throw new Error('Email service not configured. Please check email credentials.');
+    }
+
+    const emailOptions = await getMediumRiskEmailOptions(studentId);
+    
+    // Try to send email with error handling
+    try {
+      // Verify email configuration before sending
+      await transporter.verify();
+      
+      const info = await transporter.sendMail(emailOptions);
+      console.log('✅ Medium risk email sent successfully:', info.messageId);
+      return { success: true, messageId: info.messageId, type: 'real' };
+    } catch (emailError) {
+      console.log('❌ Real email failed, using mock email service');
+      console.log('Email error:', emailError.message);
+      
+      // Use mock email as fallback
+      const mockInfo = await transporter.sendMail(emailOptions);
+      console.log('📧 Mock email sent successfully:', mockInfo.messageId);
+      return { success: true, messageId: mockInfo.messageId, type: 'mock' };
+    }
+  } catch (error) {
+    console.error('Error in sendMediumRiskEmail:', error);
     
     // Provide more specific error messages
     let errorMessage = 'Failed to send email';
@@ -379,6 +481,45 @@ app.post("/api/sendHighRiskEmail", async (req, res) => {
     }
   } catch (error) {
     console.error("Error in sendHighRiskEmail endpoint:", error);
+    res.status(500).json({ 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
+
+// API endpoint to send medium risk email to a student
+app.post("/api/sendMediumRiskEmail", async (req, res) => {
+  try {
+    const { studentId } = req.body;
+    
+    if (!studentId) {
+      return res.status(400).json({ 
+        message: "Student ID is required" 
+      });
+    }
+
+    const result = await sendMediumRiskEmail(studentId);
+    
+    if (result.success) {
+      const emailType = result.type === 'mock' ? 'mock' : 'real';
+      const message = result.type === 'mock' 
+        ? "Medium risk warning processed (mock email - check console for details)"
+        : "Medium risk warning email sent successfully";
+      
+      res.status(200).json({
+        message: message,
+        messageId: result.messageId,
+        emailType: emailType
+      });
+    } else {
+      res.status(500).json({
+        message: "Failed to send medium risk email",
+        error: result.error
+      });
+    }
+  } catch (error) {
+    console.error("Error in sendMediumRiskEmail endpoint:", error);
     res.status(500).json({ 
       message: "Internal server error",
       error: error.message 

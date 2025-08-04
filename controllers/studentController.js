@@ -49,8 +49,19 @@ export const getStudentsByIds = async (req, res) => {
       if (dropoutRisk === "At Risk") riskCount++;
       if (underperformRisk === "At Risk") riskCount++;
       
+      // Debug logging for risk calculation
+      console.log(`Student ${student.StudentID} (${student.Name}):`, {
+        dropoutRisk: risk.DropoutRisk,
+        underperformRisk: risk.UnderperformRisk,
+        dropoutRiskString: dropoutRisk,
+        underperformRiskString: underperformRisk,
+        riskCount: riskCount
+      });
+      
       const riskClass = riskCount === 0 ? "no-risk" : 
-                       riskCount === 1 ? "one-risk" : "two-risks";
+                       riskCount === 1 ? "medium-risk" : "high-risk";
+      
+      console.log(`Risk class assigned: ${riskClass}`);
       
       return {
         ...student,

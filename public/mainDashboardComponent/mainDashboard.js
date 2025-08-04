@@ -31,12 +31,13 @@ window.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      const filteredStudents = data.students;
-      const allHeaders = [
-        "StudentID", "Name", "Gender", "AttendanceRate", 
-        "StudyHoursPerWeek", "PreviousGrade", "ExtracurricularActivities", 
-        "ParentalSupport", "FinalGrade", "DropoutRisk", "Underperform"
-      ];
+             const filteredStudents = data.students;
+       console.log('Students with risk classes:', filteredStudents.map(s => ({ id: s.StudentID, name: s.Name, riskClass: s.riskClass })));
+       const allHeaders = [
+         "StudentID", "Name", "Gender", "AttendanceRate", 
+         "StudyHoursPerWeek", "PreviousGrade", "ExtracurricularActivities", 
+         "ParentalSupport", "FinalGrade", "DropoutRisk", "Underperform"
+       ];
 
       const container = document.createElement("div");
       container.className = "student-ids-list";
@@ -432,12 +433,23 @@ function addAlertMailEventListeners() {
         return;
       }
 
+      // Determine risk level based on the row's risk class
+      console.log('Row classes:', row.className);
+      const riskLevel = row.className.includes('high-risk') ? 'high' : 
+                       row.className.includes('medium-risk') ? 'medium' : 
+                       row.className.includes('low-risk') ? 'low' : 'high';
+      console.log('Detected risk level:', riskLevel);
+      
       // Disable button to prevent multiple clicks
       this.disabled = true;
       this.textContent = 'Sending...';
       
       try {
-        const response = await fetch('/api/sendHighRiskEmail', {
+        // Choose endpoint based on risk level
+        const endpoint = riskLevel === 'medium' ? '/api/sendMediumRiskEmail' : '/api/sendHighRiskEmail';
+        const emailType = riskLevel === 'medium' ? 'warning' : 'alert';
+        
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -456,7 +468,10 @@ function addAlertMailEventListeners() {
           this.style.color = 'white';
           
           // Show success notification
-          showNotification(`High risk email sent successfully to ${studentName}`, 'success');
+          const message = riskLevel === 'medium' 
+            ? `Academic warning sent successfully to ${studentName}`
+            : `High risk alert sent successfully to ${studentName}`;
+          showNotification(message, 'success');
           
           // Reset button after 3 seconds
           setTimeout(() => {
@@ -469,7 +484,7 @@ function addAlertMailEventListeners() {
           throw new Error(result.message || 'Failed to send email');
         }
       } catch (error) {
-        console.error('Error sending high risk email:', error);
+        console.error(`Error sending ${riskLevel} risk email:`, error);
         
         // Show error message
         this.textContent = 'Failed';
@@ -477,7 +492,10 @@ function addAlertMailEventListeners() {
         this.style.color = 'white';
         
         // Show error notification
-        showNotification(`Failed to send email to ${studentName}: ${error.message}`, 'error');
+        const message = riskLevel === 'medium' 
+          ? `Failed to send warning to ${studentName}: ${error.message}`
+          : `Failed to send alert to ${studentName}: ${error.message}`;
+        showNotification(message, 'error');
         
         // Reset button after 3 seconds
         setTimeout(() => {
