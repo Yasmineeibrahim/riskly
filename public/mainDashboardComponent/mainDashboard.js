@@ -16,102 +16,27 @@ window.addEventListener("DOMContentLoaded", function () {
     document.body.appendChild(container);
     return;
   }
+    // Fetch students from SQL database
+  fetch("/api/students/by-ids", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ studentIds: advisorStudents }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.students) {
+        console.error("No students data received:", data);
+        return;
+      }
 
-  Promise.all([
-    fetch("/student_performance_riskly.csv").then((res) => res.text()),
-    fetch("/student_risks.csv").then((res) => res.text()),
-  ])
-    .then(([studentCSV, riskCSV]) => {
-      const studentLines = studentCSV.split("\n").filter(Boolean);
-      const studentHeaders = studentLines[0].split(",").map((h) => h.trim());
-      const studentRows = studentLines.slice(1).map((line) => line.split(","));
-
-      const riskLines = riskCSV.split("\n").filter(Boolean);
-      const riskMap = {};
-      riskLines.slice(1).forEach((line) => {
-        const [id, dropout, underperform] = line.split(",").map((val) => val.trim());
-        riskMap[id] = {
-          DropoutRisk: dropout === "1" ? "At Risk" : "No Risk",
-          Underperform: underperform === "1" ? "At Risk" : "No Risk",
-        };
-      });
-      // --- FILTERING LOGIC ---
-const filterBtn = document.querySelector(".filter-btn");
-const filterOptions = document.getElementById("filter-options");
-
-filterBtn?.addEventListener("click", () => {
-  filterOptions.classList.toggle("hidden");
-});
-
-filterOptions?.addEventListener("click", (e) => {
-  const selectedClass = e.target.dataset.filter;
-  if (!selectedClass) return;
-
-  // Filter logic
-  const filtered = selectedClass === "all"
-    ? filteredStudents
-    : filteredStudents.filter((student) => student.riskClass === selectedClass);
-
-  // Re-render table with filtered data
-  const newFilteredHTML = `
-    <h2 class="student-table-title">My Assigned Students</h2>
-    <table class="students-table">
-      <thead>
-        <tr>
-          ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
-          <th>Alert Mail</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filtered
-          .map((student) => {
-            const isDisabled = student.riskClass === "no-risk";
-            return `
-              <tr class="${student.riskClass}">
-                ${allHeaders
-                  .map((header) => `<td>${student[header] || ""}</td>`)
-                  .join("")}
-                <td>
-                  <button class="alert-mail-btn" ${
-                    isDisabled ? "disabled" : ""
-                  }>
-                    Send Alert
-                  </button>
-                </td>
-              </tr>
-            `;
-          })
-          .join("")}
-      </tbody>
-    </table>
-  `;
-  container.innerHTML = newFilteredHTML;
-  filterOptions.classList.add("hidden");
-});
-
-      const filteredStudents = studentRows
-        .filter((row) => advisorStudents.includes(Number(row[0])))
-        .map((row) => {
-          const obj = {};
-          studentHeaders.forEach((header, i) => (obj[header] = row[i]));
-          const studentId = row[0];
-          const risks = riskMap[studentId] || {
-            DropoutRisk: "No Risk",
-            Underperform: "No Risk",
-          };
-          obj["DropoutRisk"] = risks.DropoutRisk;
-          obj["Underperform"] = risks.Underperform;
-
-          let riskCount = 0;
-          if (risks.DropoutRisk === "At Risk") riskCount++;
-          if (risks.Underperform === "At Risk") riskCount++;
-
-          obj["riskClass"] =
-            riskCount === 0 ? "no-risk" : riskCount === 1 ? "one-risk" : "two-risks";
-          return obj;
-        });
-
-      const allHeaders = [...studentHeaders, "DropoutRisk", "Underperform"];
+      const filteredStudents = data.students;
+      const allHeaders = [
+        "StudentID", "Name", "Gender", "AttendanceRate", 
+        "StudyHoursPerWeek", "PreviousGrade", "ExtracurricularActivities", 
+        "ParentalSupport", "FinalGrade", "DropoutRisk", "Underperform"
+      ];
 
       const container = document.createElement("div");
       container.className = "student-ids-list";
@@ -143,83 +68,6 @@ filterOptions?.addEventListener("click", (e) => {
     </tbody>
         </table>
     `;
-    // ---- SORTING ----
-const sortBtn = document.querySelector(".sort-btn");
-const sortOptions = document.getElementById("sort-options");
-
-sortBtn?.addEventListener("click", () => {
-  sortOptions.classList.toggle("hidden");
-});
-
-let sortOrder = {};
-
-sortOptions?.addEventListener("click", (e) => {
-  const field = e.target.dataset.sort;
-  if (!field) return;
-
-  // Ensure the field exists in the student objects
-  if (!filteredStudents[0] || !(field in filteredStudents[0])) {
-    console.warn(`Field '${field}' not found in student data.`);
-    return;
-  }
-
-  // Show sort order options
-  const sortOrderMenu = document.getElementById("sort-order");
-  sortOrderMenu.classList.remove("hidden");
-
-  sortOrderMenu.addEventListener("click", (event) => {
-    const order = event.target.dataset.order;
-    if (!order) return;
-
-    filteredStudents.sort((a, b) => {
-      const valA = a[field] || "";
-      const valB = b[field] || "";
-
-      // Check for numbers
-      if (!isNaN(valA) && !isNaN(valB)) {
-        return order === "asc" ? parseFloat(valA) - parseFloat(valB) : parseFloat(valB) - parseFloat(valA);
-      } else {
-        return order === "asc" ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
-      }
-    });
-
-    // Re-render table
-    const newTableHTML = `
-      <h2 class="student-table-title">My Assigned Students</h2>
-      <table class="students-table">
-        <thead>
-          <tr>
-            ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
-            <th>Alert Mail</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filteredStudents
-            .map((student) => {
-              const isDisabled = student.riskClass === "no-risk";
-              return `
-                <tr class="${student.riskClass}">
-                  ${allHeaders
-                    .map((header) => `<td>${student[header] || ""}</td>`)
-                    .join("")}
-                  <td>
-                    <button class="alert-mail-btn" ${
-                      isDisabled ? "disabled" : ""
-                    }>
-                      Send Alert
-                    </button>
-                  </td>
-                </tr>
-              `;
-            })
-            .join("")}
-        </tbody>
-      </table>
-    `;
-    container.innerHTML = newTableHTML;
-    sortOrderMenu.classList.add("hidden");
-  });
-});
 
       container.innerHTML = tableHTML;
       const tableSection = document.getElementById("student-table-section");
@@ -229,9 +77,141 @@ sortOptions?.addEventListener("click", (e) => {
         console.warn("No element with id 'student-table-section' found");
         document.body.appendChild(container);
       }
+
+      // ---- FILTERING ----
+      const filterBtn = document.querySelector(".filter-btn");
+      const filterOptions = document.getElementById("filter-options");
+
+      filterBtn?.addEventListener("click", () => {
+        filterOptions.classList.toggle("hidden");
+      });
+
+      filterOptions?.addEventListener("click", (e) => {
+        const selectedClass = e.target.dataset.filter;
+        if (!selectedClass) return;
+
+        // Filter logic
+        const filtered = selectedClass === "all"
+          ? filteredStudents
+          : filteredStudents.filter((student) => student.riskClass === selectedClass);
+
+        // Re-render table with filtered data
+        const newFilteredHTML = `
+          <h2 class="student-table-title">My Assigned Students</h2>
+          <table class="students-table">
+            <thead>
+              <tr>
+                ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+                <th>Alert Mail</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered
+                .map((student) => {
+                  const isDisabled = student.riskClass === "no-risk";
+                  return `
+                    <tr class="${student.riskClass}">
+                      ${allHeaders
+                        .map((header) => `<td>${student[header] || ""}</td>`)
+                        .join("")}
+                      <td>
+                        <button class="alert-mail-btn" ${
+                          isDisabled ? "disabled" : ""
+                        }>
+                          Send Alert
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                })
+                .join("")}
+            </tbody>
+          </table>
+        `;
+        container.innerHTML = newFilteredHTML;
+        filterOptions.classList.add("hidden");
+      });
+
+      // ---- SORTING ----
+      const sortBtn = document.querySelector(".sort-btn");
+      const sortOptions = document.getElementById("sort-options");
+
+      sortBtn?.addEventListener("click", () => {
+        sortOptions.classList.toggle("hidden");
+      });
+
+      let sortOrder = {};
+
+      sortOptions?.addEventListener("click", (e) => {
+        const field = e.target.dataset.sort;
+        if (!field) return;
+
+        // Ensure the field exists in the student objects
+        if (!filteredStudents[0] || !(field in filteredStudents[0])) {
+          console.warn(`Field '${field}' not found in student data.`);
+          return;
+        }
+
+        // Show sort order options
+        const sortOrderMenu = document.getElementById("sort-order");
+        sortOrderMenu.classList.remove("hidden");
+
+        sortOrderMenu.addEventListener("click", (event) => {
+          const order = event.target.dataset.order;
+          if (!order) return;
+
+          filteredStudents.sort((a, b) => {
+            const valA = a[field] || "";
+            const valB = b[field] || "";
+
+            // Check for numbers
+            if (!isNaN(valA) && !isNaN(valB)) {
+              return order === "asc" ? parseFloat(valA) - parseFloat(valB) : parseFloat(valB) - parseFloat(valA);
+            } else {
+              return order === "asc" ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
+            }
+          });
+
+          // Re-render table
+          const newTableHTML = `
+            <h2 class="student-table-title">My Assigned Students</h2>
+            <table class="students-table">
+              <thead>
+                <tr>
+                  ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+                  <th>Alert Mail</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filteredStudents
+                  .map((student) => {
+                    const isDisabled = student.riskClass === "no-risk";
+                    return `
+                      <tr class="${student.riskClass}">
+                        ${allHeaders
+                          .map((header) => `<td>${student[header] || ""}</td>`)
+                          .join("")}
+                        <td>
+                          <button class="alert-mail-btn" ${
+                            isDisabled ? "disabled" : ""
+                          }>
+                            Send Alert
+                          </button>
+                        </td>
+                      </tr>
+                    `;
+                  })
+                  .join("")}
+              </tbody>
+            </table>
+          `;
+          container.innerHTML = newTableHTML;
+          sortOrderMenu.classList.add("hidden");
+        });
+      });
     })
     .catch((error) => {
-      console.error("Error fetching CSVs:", error);
+      console.error("Error fetching students:", error);
     });
 
   // --- Search Highlight and Navigation Logic ---

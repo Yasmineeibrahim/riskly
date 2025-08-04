@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
 import Advisor from './models/advisorModel.js';
+import studentRoutes from './routes/studentRoutes.js';
+import sequelize from './config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,17 +24,24 @@ dotenv.config();
 const PORT = process.env.PORT || 2000;
 const MONGOURL = process.env.MONGO_URL;
 
-mongoose
-  .connect(MONGOURL)
-  .then(() => {
-    console.log("Connected to database:", mongoose.connection.name);
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error("MongoDB connection error:", error);
+// Add student routes
+app.use('/api/students', studentRoutes);
+
+// Connect to both MongoDB and MySQL
+Promise.all([
+  mongoose.connect(MONGOURL),
+  sequelize.authenticate()
+])
+.then(() => {
+  console.log("Connected to MongoDB:", mongoose.connection.name);
+  console.log("Connected to MySQL database");
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
   });
+})
+.catch((error) => {
+  console.error("Database connection error:", error);
+});
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'loginPageComponent', 'loginPage.html'));
