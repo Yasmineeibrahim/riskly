@@ -9,6 +9,13 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 import numpy as np
 from sqlalchemy import create_engine
 import shap
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+
+app = Flask(__name__)
+CORS(app)
+
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -165,19 +172,31 @@ def predict_new_student(rf_dropout, rf_underperform, scaler, encoder, student_da
     return (dropout_pred, dropout_prob), (underperform_pred, underperform_prob)
 
 
-new_student = {
-    "AttendanceRate": 100.0,
-    "StudyHoursPerWeek": 30.0,
-    "PreviousGrade": 60.0,
-    "FinalGrade": 100.0,
-    "ParentalSupport": "High",
-    "Gender": "Female",
-    "ExtracurricularActivities": 1.0
-}
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.json
 
-(dropout_risk, dropout_prob), (underperform_risk, underperform_prob) = predict_new_student(
-    rf_dropout, rf_underperform, scaler, encoder, new_student, trained_feature_order, trained_feature_order
-)
+    # Step 1: Predict risks
+    dropout, dropout_prob = predict_new_student(rf_dropout, scaler, encoder, data, trained_feature_order)
+    underperform, underperform_prob = predict_new_student(rf_underperform, scaler, encoder, data, trained_feature_order)
 
-print(f"Predicted Dropout Risk: {'At Risk' if dropout_risk else 'No Risk'} (Probability: {dropout_prob:.2f})")
-print(f"Predicted Underperform Risk: {'At Risk' if underperform_risk else 'No Risk'} (Probability: {underperform_prob:.2f})")
+    # Step 2: Insert into DB
+    engine = get_db_connection()
+    df = pd.DataFrame([data])
+    df["dropout_risk"] = dropout
+    df["underperform_risk"] = underperform
+    df["dropout_probability"] = round(dropout_prob, 2)
+    df["underperform_probability"] = round(underperform_prob, 2)
+    df["advisor_email"] = data.get("advisor_email", "unknown")
+
+    df.to_sql("predicted_students", engine, if_exists="append", index=False)
+
+    return jsonify({
+        "dropout_risk": dropout,
+        "underperform_risk": underperform,
+        "dropout_probability": dropout_prob,
+        "underperform_probability": underperform_prob
+    })
+
+if __name__ == '__main__':
+    app.run(debug=True)

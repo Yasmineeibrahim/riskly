@@ -412,6 +412,65 @@ window.addEventListener("DOMContentLoaded", function () {
   searchInput?.addEventListener("keydown", function (e) {
     if (e.key === "Enter") performSearch();
   });
+
+  // Handle Add and Predict form submission
+  const addStudentForm = document.getElementById("add-student-form");
+  
+  addStudentForm?.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const formData = {
+      Name: document.getElementById("name").value,
+      Email: document.getElementById("email").value,
+      Gender: document.getElementById("Gender").value,
+      AttendanceRate: parseFloat(document.getElementById("AttendanceRate").value),
+      StudyHoursPerWeek: parseFloat(document.getElementById("StudyHoursPerWeek").value),
+      PreviousGrade: parseFloat(document.getElementById("PreviousGrade").value),
+      ExtracurricularActivities: parseFloat(document.getElementById("ExtracurricularActivities").value),
+      ParentalSupport: document.getElementById("ParentalSupport").value,
+      FinalGrade: parseFloat(document.getElementById("FinalGrade").value)
+    };
+
+    // Validate form data
+    if (!formData.Name || !formData.Gender || !formData.AttendanceRate || 
+        !formData.StudyHoursPerWeek || !formData.PreviousGrade || 
+        !formData.ExtracurricularActivities || !formData.ParentalSupport || 
+        !formData.FinalGrade) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      console.log("Submitting student data:", formData);
+      
+      // Send data to backend for prediction and storage
+      const response = await fetch("/api/students/add-and-predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert(`Student added successfully!\n\nPrediction Results:\n- Dropout Risk: ${result.prediction.DropoutRisk}\n- Underperform Risk: ${result.prediction.UnderperformRisk}\n- Risk Level: ${result.prediction.riskClass}`);
+        
+        // Clear form
+        addStudentForm.reset();
+        
+        // Optionally refresh the student table
+        // You can add code here to refresh the table if needed
+      } else {
+        alert(`Error: ${result.message || "Failed to add student"}`);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred while processing your request");
+    }
+  });
 });
 
 // Function to add event listeners for alert mail buttons
@@ -564,3 +623,42 @@ function showNotification(message, type = 'info') {
     notification.remove();
   }, 5000);
 }
+
+document.getElementById("add-student-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const data = {
+    Name: document.getElementById("name").value,
+    Email: document.getElementById("email").value,
+    Gender: document.getElementById("Gender").value,
+    AttendanceRate: parseFloat(document.getElementById("AttendanceRate").value),
+    PreviousGrade: parseFloat(document.getElementById("PreviousGrade").value),
+    FinalGrade: parseFloat(document.getElementById("FinalGrade").value),
+    StudyHoursPerWeek: parseFloat(document.getElementById("StudyHoursPerWeek").value),
+    ExtracurricularActivities: parseFloat(document.getElementById("ExtracurricularActivities").value),
+    ParentalSupport: document.getElementById("ParentalSupport").value,
+    advisor_email: localStorage.getItem("advisorEmail") || "unknown"
+  };
+
+  try {
+    const response = await fetch("http://localhost:5000/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    alert(
+      `Dropout Risk: ${result.dropout_risk ? "Yes" : "No"} (${(result.dropout_probability * 100).toFixed(1)}%)\n` +
+      `Underperform Risk: ${result.underperform_risk ? "Yes" : "No"} (${(result.underperform_probability * 100).toFixed(1)}%)`
+    );
+
+    // Optional: clear form
+    document.getElementById("add-student-form").reset();
+  } catch (err) {
+    console.error("Prediction failed", err);
+    alert("Something went wrong. Please try again.");
+  }
+});
