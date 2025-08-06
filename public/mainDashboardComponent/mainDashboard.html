@@ -19,6 +19,14 @@
       href="magnifying-glass-chart-solid-full.svg"
     />
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Test if Chart.js is loaded
+      console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+      if (typeof Chart !== 'undefined') {
+        console.log('Chart.js version:', Chart.version);
+      }
+    </script>
   </head>
   <body>
     <div class="header-bar">
@@ -311,9 +319,8 @@
 
       <div class="chart-container" data-aos="fade-up" data-aos-delay="100">
         <h3>Risk Distribution</h3>
-        <div class="chart-placeholder">
-          <i class="fa-solid fa-chart-pie"></i>
-          <p>Risk distribution chart will be displayed here</p>
+        <div class="chart-wrapper">
+          <canvas id="riskDistributionChart" width="300" height="300"></canvas>
         </div>
       </div>
     </div>

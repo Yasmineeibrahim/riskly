@@ -122,6 +122,9 @@ window.addEventListener("DOMContentLoaded", function () {
       // Update performance metrics with the loaded student data
       updatePerformanceMetrics(allStudents);
 
+      // Create risk distribution pie chart
+      createRiskDistributionChart(allStudents);
+
       // ---- FILTERING ----
       const filterBtn = document.querySelector(".filter-btn");
       const filterOptions = document.getElementById("filter-options");
@@ -178,6 +181,9 @@ window.addEventListener("DOMContentLoaded", function () {
          
          // Re-add event listeners for the new buttons
          addAlertMailEventListeners();
+         
+         // Update the risk distribution chart with filtered data
+         createRiskDistributionChart(filtered);
        });
 
       // ---- SORTING ----
@@ -259,6 +265,9 @@ window.addEventListener("DOMContentLoaded", function () {
              
              // Re-add event listeners for the new buttons
              addAlertMailEventListeners();
+             
+             // Update the risk distribution chart with sorted data
+             createRiskDistributionChart(allStudents);
            });
          });
     })
@@ -1107,5 +1116,178 @@ function updatePerformanceMetrics(studentsData = null) {
     }
   } catch (error) {
     console.error('Error updating performance metrics:', error);
+  }
+}
+
+// Function to create risk distribution pie chart
+function createRiskDistributionChart(studentsData) {
+  try {
+    console.log('=== DEBUG: createRiskDistributionChart called ===');
+    console.log('Chart.js available:', typeof Chart !== 'undefined');
+    console.log('Students data:', studentsData);
+    
+    if (!studentsData || studentsData.length === 0) {
+      console.log('No student data available for risk distribution chart');
+      return;
+    }
+
+    // Count students by risk level
+    const riskCounts = {
+      'No Risk': 0,
+      'Medium Risk': 0,
+      'High Risk': 0
+    };
+
+    studentsData.forEach(student => {
+      console.log('Processing student:', student.Name, 'riskClass:', student.riskClass);
+      // Determine risk level based on riskClass
+      if (student.riskClass === 'no-risk') {
+        riskCounts['No Risk']++;
+      } else if (student.riskClass === 'medium-risk') {
+        riskCounts['Medium Risk']++;
+      } else if (student.riskClass === 'high-risk') {
+        riskCounts['High Risk']++;
+      } else {
+        // Fallback: determine risk based on individual risk factors
+        const dropoutRisk = student.DropoutRisk === "At Risk";
+        const underperformRisk = student.Underperform === "At Risk";
+        const riskCount = (dropoutRisk ? 1 : 0) + (underperformRisk ? 1 : 0);
+        
+        if (riskCount === 0) {
+          riskCounts['No Risk']++;
+        } else if (riskCount === 1) {
+          riskCounts['Medium Risk']++;
+        } else {
+          riskCounts['High Risk']++;
+        }
+      }
+    });
+
+    console.log('Risk distribution data:', riskCounts);
+
+    // Get the canvas element
+    const canvas = document.getElementById('riskDistributionChart');
+    console.log('Canvas element found:', canvas);
+    if (!canvas) {
+      console.error('Canvas element not found for risk distribution chart');
+      return;
+    }
+
+    // Clear any existing chart data from the canvas
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Destroy existing chart if it exists
+    if (window.riskDistributionChart && typeof window.riskDistributionChart.destroy === 'function') {
+      console.log('Destroying existing chart');
+      window.riskDistributionChart.destroy();
+    }
+
+    // Create the pie chart
+    window.riskDistributionChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(riskCounts),
+        datasets: [{
+          data: Object.values(riskCounts),
+          backgroundColor: [
+            '#00BCD4', // Light blue for No Risk (matches theme better)
+            '#667eea', // Purple-blue for Medium Risk (matches website theme)
+            '#764ba2'  // Darker purple for High Risk (matches website theme)
+          ],
+          borderColor: [
+            '#0097A7',
+            '#5a6fd8',
+            '#6a4190'
+          ],
+          borderWidth: 3,
+          hoverBackgroundColor: [
+            '#26C6DA',
+            '#7a8aed',
+            '#8a5bb8'
+          ],
+          hoverBorderWidth: 4,
+          hoverBorderColor: [
+            '#00838F',
+            '#4A5FC7',
+            '#5A3A7A'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 25,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              font: {
+                size: 14,
+                weight: '600',
+                family: "'Plus Jakarta Sans', sans-serif"
+              },
+              color: '#333',
+              generateLabels: function(chart) {
+                const data = chart.data;
+                if (data.labels.length && data.datasets.length) {
+                  return data.labels.map((label, i) => {
+                    const dataset = data.datasets[0];
+                    const value = dataset.data[i];
+                    const total = dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return {
+                      text: `${label} (${percentage}%)`,
+                      fillStyle: dataset.backgroundColor[i],
+                      strokeStyle: dataset.borderColor[i],
+                      lineWidth: 2,
+                      pointStyle: 'circle',
+                      hidden: false,
+                      index: i
+                    };
+                  });
+                }
+                return [];
+              }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            titleColor: '#333',
+            bodyColor: '#666',
+            borderColor: '#ddd',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: true,
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${label}: ${value} students (${percentage}%)`;
+              }
+            }
+          }
+        },
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1000,
+          easing: 'easeOutQuart'
+        },
+        cutout: '60%',
+        radius: '90%'
+      }
+    });
+
+    console.log('Risk distribution chart created successfully');
+    console.log('Chart instance:', window.riskDistributionChart);
+  } catch (error) {
+    console.error('Error creating risk distribution chart:', error);
+    console.error('Error stack:', error.stack);
   }
 }
