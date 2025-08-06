@@ -477,15 +477,36 @@ window.addEventListener("DOMContentLoaded", function () {
         !formData.StudyHoursPerWeek || !formData.PreviousGrade || 
         !formData.ExtracurricularActivities || !formData.ParentalSupport || 
         !formData.FinalGrade) {
-      alert("Please fill in all required fields");
+      showCustomPopup("Please fill in all required fields", "error");
       return;
     }
+
+    // Show loading popup with dynamic message
+    const loadingMessages = [
+      "Analyzing student data...",
+      "Processing academic metrics...",
+      "Generating ML predictions...",
+      "Calculating risk factors...",
+      "Finalizing results..."
+    ];
+    
+    let messageIndex = 0;
+    showLoadingPopup(loadingMessages[messageIndex]);
+    
+    // Update loading message every 2 seconds
+    const messageInterval = setInterval(() => {
+      messageIndex = (messageIndex + 1) % loadingMessages.length;
+      const loadingContent = document.querySelector('#loading-popup p');
+      if (loadingContent) {
+        loadingContent.textContent = loadingMessages[messageIndex];
+      }
+    }, 2000);
 
     try {
       console.log("Submitting student data to Python backend:", formData);
       
       // Send to Python backend for ML prediction
-      const response = await fetch("http://localhost:5000/predict", {
+      const response = await fetch("http://127.0.0.1:5000/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -495,22 +516,84 @@ window.addEventListener("DOMContentLoaded", function () {
 
       const result = await response.json();
       
+      // Clear message interval and hide loading popup
+      clearInterval(messageInterval);
+      hideLoadingPopup();
+      
       if (response.ok) {
-        alert(`Student prediction completed!\n\nML Prediction Results:\n- Dropout Risk: ${result.dropout_risk ? "Yes" : "No"} (${(result.dropout_probability * 100).toFixed(1)}%)\n- Underperform Risk: ${result.underperform_risk ? "Yes" : "No"} (${(result.underperform_probability * 100).toFixed(1)}%)\n\nStudent data saved to database.`);
+        // Show success popup with prediction results
+        const predictionMessage = `
+          <div style="text-align: center;">
+            <h3 style="color: #4CAF50; margin-bottom: 20px;">🎯 Prediction Complete!</h3>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0;">
+              <h4 style="color: #333; margin-bottom: 15px;">ML Prediction Results:</h4>
+              <div style="display: flex; justify-content: space-around; margin-bottom: 15px;">
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; font-weight: bold; color: ${result.dropout_risk ? '#f44336' : '#4CAF50'};">
+                    ${result.dropout_risk ? '⚠️' : '✅'}
+                  </div>
+                  <div style="font-weight: bold; color: #333;">Dropout Risk</div>
+                  <div style="color: ${result.dropout_risk ? '#f44336' : '#4CAF50'};">
+                    ${result.dropout_risk ? "At Risk" : "No Risk"}
+                  </div>
+                  <div style="font-size: 12px; color: #666;">
+                    (${(result.dropout_probability * 100).toFixed(1)}% probability)
+                  </div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; font-weight: bold; color: ${result.underperform_risk ? '#ff9800' : '#4CAF50'};">
+                    ${result.underperform_risk ? '⚠️' : '✅'}
+                  </div>
+                  <div style="font-weight: bold; color: #333;">Underperform Risk</div>
+                  <div style="color: ${result.underperform_risk ? '#ff9800' : '#4CAF50'};">
+                    ${result.underperform_risk ? "At Risk" : "No Risk"}
+                  </div>
+                  <div style="font-size: 12px; color: #666;">
+                    (${(result.underperform_probability * 100).toFixed(1)}% probability)
+                  </div>
+                </div>
+              </div>
+              <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                <strong>✅ Student data saved to database successfully!</strong>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        showCustomPopup(predictionMessage, "success");
         
         // Clear form
         addStudentForm.reset();
       } else {
         // Handle specific error types
         if (result.error === "Duplicate email error") {
-          alert(`❌ Duplicate Email Error!\n\n${result.message}\n\nPlease use a different email address for this student.`);
+          showCustomPopup(`
+            <div style="text-align: center;">
+              <h3 style="color: #f44336; margin-bottom: 15px;">❌ Duplicate Email Error</h3>
+              <p style="color: #333; margin-bottom: 15px;">${result.message}</p>
+              <p style="color: #666; font-size: 14px;">Please use a different email address for this student.</p>
+            </div>
+          `, "error");
         } else {
-          alert(`Error: ${result.message || "Failed to predict student"}`);
+          showCustomPopup(`
+            <div style="text-align: center;">
+              <h3 style="color: #f44336; margin-bottom: 15px;">❌ Prediction Failed</h3>
+              <p style="color: #333;">${result.message || "Failed to predict student"}</p>
+            </div>
+          `, "error");
         }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Error connecting to prediction server. Please ensure the Python backend is running on port 5000.");
+      clearInterval(messageInterval);
+      hideLoadingPopup();
+      showCustomPopup(`
+        <div style="text-align: center;">
+          <h3 style="color: #f44336; margin-bottom: 15px;">❌ Connection Error</h3>
+          <p style="color: #333; margin-bottom: 15px;">Error connecting to prediction server.</p>
+          <p style="color: #666; font-size: 14px;">Please ensure the Python backend is running on port 5000.</p>
+        </div>
+      `, "error");
     }
   });
 });
@@ -691,6 +774,166 @@ function showNotification(message, type = 'info') {
   setTimeout(() => {
     notification.remove();
   }, 5000);
+}
+
+// Function to show loading popup
+function showLoadingPopup(message) {
+  // Remove existing loading popup if any
+  hideLoadingPopup();
+  
+  const loadingPopup = document.createElement('div');
+  loadingPopup.id = 'loading-popup';
+  loadingPopup.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    backdrop-filter: blur(5px);
+  `;
+  
+  const loadingContent = document.createElement('div');
+  loadingContent.style.cssText = `
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+  `;
+  
+  // Add spinning animation CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  loadingContent.innerHTML = `
+    <div class="spinner"></div>
+    <h3 style="color: #333; margin-bottom: 15px;">Processing...</h3>
+    <p style="color: #666; font-size: 14px;">${message}</p>
+  `;
+  
+  loadingPopup.appendChild(loadingContent);
+  document.body.appendChild(loadingPopup);
+}
+
+// Function to hide loading popup
+function hideLoadingPopup() {
+  const existingPopup = document.getElementById('loading-popup');
+  if (existingPopup) {
+    existingPopup.remove();
+  }
+}
+
+// Function to show custom popup
+function showCustomPopup(message, type = 'info') {
+  // Remove existing custom popup if any
+  const existingPopup = document.getElementById('custom-popup');
+  if (existingPopup) {
+    existingPopup.remove();
+  }
+  
+  const popup = document.createElement('div');
+  popup.id = 'custom-popup';
+  popup.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10002;
+    backdrop-filter: blur(5px);
+  `;
+  
+  const popupContent = document.createElement('div');
+  popupContent.style.cssText = `
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  `;
+  
+  // Set border color based on type
+  if (type === 'success') {
+    popupContent.style.borderLeft = '5px solid #4CAF50';
+  } else if (type === 'error') {
+    popupContent.style.borderLeft = '5px solid #f44336';
+  } else {
+    popupContent.style.borderLeft = '5px solid #2196F3';
+  }
+  
+  popupContent.innerHTML = `
+    ${message}
+    <div style="margin-top: 25px;">
+      <button id="popup-close-btn" style="
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: background 0.3s;
+      " onmouseover="this.style.background='#2980b9'" onmouseout="this.style.background='#3498db'">
+        Close
+      </button>
+    </div>
+  `;
+  
+  popup.appendChild(popupContent);
+  document.body.appendChild(popup);
+  
+  // Add close functionality
+  const closeBtn = document.getElementById('popup-close-btn');
+  closeBtn.addEventListener('click', () => {
+    popup.remove();
+  });
+  
+  // Close on background click
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) {
+      popup.remove();
+    }
+  });
+  
+  // Auto-close success popups after 5 seconds
+  if (type === 'success') {
+    setTimeout(() => {
+      if (document.getElementById('custom-popup')) {
+        popup.remove();
+      }
+    }, 5000);
+  }
 }
 
 // Logout functionality
