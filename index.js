@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
 
 });
 
-app.get('/mainDashboard.html', (req, res) => {
+app.get('/mainDashboardComponent/mainDashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'mainDashboardComponent', 'mainDashboard.html'));
 });
 

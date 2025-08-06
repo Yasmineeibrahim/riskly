@@ -51,13 +51,16 @@ if (data.advisor && data.advisor._id) {
 if (data.advisor && data.advisor.advisor_name) {
   localStorage.setItem("advisorName", data.advisor.advisor_name);
 }
+if (data.advisor && data.advisor.Email) {
+  localStorage.setItem("advisorEmail", data.advisor.Email);
+}
 if (data.advisor && data.advisor.Students) {
   console.log("Saving students to localStorage:", data.advisor.Students);
   localStorage.setItem("advisorStudents", JSON.stringify(data.advisor.Students));
   console.log("Students saved to localStorage. Current value:", localStorage.getItem("advisorStudents"));
 }
 
-        window.location.href = "mainDashboardComponent/mainDashboard.html";
+        window.location.href = "/mainDashboardComponent/mainDashboard.html";
       } else {
         alert(data.message || "Login failed");
       }

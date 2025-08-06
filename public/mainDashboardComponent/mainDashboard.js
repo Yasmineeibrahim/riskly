@@ -693,4 +693,46 @@ function showNotification(message, type = 'info') {
   }, 5000);
 }
 
+// Logout functionality
+function setupLogout() {
+  console.log('Setting up logout functionality...');
+  const logoutBtn = document.querySelector('.logout-btn');
+  
+  if (logoutBtn) {
+    console.log('Logout button found, adding event listener');
+    logoutBtn.addEventListener('click', function(e) {
+      console.log('Logout button clicked');
+      e.preventDefault();
+      
+      // Show confirmation dialog
+      if (confirm('Are you sure you want to logout?')) {
+        console.log('User confirmed logout');
+        // Clear all localStorage data
+        localStorage.removeItem('token');
+        localStorage.removeItem('advisorId');
+        localStorage.removeItem('advisorName');
+        localStorage.removeItem('advisorEmail');
+        localStorage.removeItem('advisorStudents');
+        
+        console.log('User logged out, localStorage cleared');
+        
+        // Show success notification
+        showNotification('Successfully logged out', 'success');
+        
+        // Small delay before redirect to show notification
+        setTimeout(() => {
+          // Redirect to login page with logout reason
+          window.location.href = window.location.origin + '/?logout=manual';
+        }, 1000);
+      } else {
+        console.log('User cancelled logout');
+      }
+    });
+  } else {
+    console.warn('Logout button not found');
+  }
+}
 
+// Initialize logout functionality
+console.log('Initializing logout functionality...');
+setupLogout();

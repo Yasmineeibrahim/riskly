@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="loginPageComponent/loginPage.css">
+    <link rel="stylesheet" href="../loginPageComponent/loginPage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/svg+xml" href="magnifying-glass-chart-solid-full.svg">
+    <link rel="icon" type="image/svg+xml" href="../magnifying-glass-chart-solid-full.svg">
     <title>riskly</title>
 </head>
 <body>
@@ -14,7 +14,7 @@
         <span>riskly.</span>
     </div>
     <div class="background-video-container">
-        <video id="bg-video" src="121550-724710109-vmake.mp4" autoplay loop muted playsinline></video>
+        <video id="bg-video" src="../121550-724710109-vmake.mp4" autoplay loop muted playsinline></video>
     </div>
     <div class="login-content">
         <div class="ai-label">NEXT-GEN AI DERIVED PERFORMANCE ENGINE</div>
@@ -40,9 +40,21 @@
         </form>
     </div>
 </body>
- <script src="app.js"></script>
+ <script src="../app.js"></script>
  <script>
    console.log("Login page loaded and app.js should be loaded");
    console.log("Form element found:", document.getElementById("login-form"));
+   
+   // Check if user was logged out
+   const urlParams = new URLSearchParams(window.location.search);
+   const logoutReason = urlParams.get('logout');
+   
+   if (logoutReason === 'timeout') {
+     alert('Your session has expired due to inactivity. Please login again.');
+   } else if (logoutReason === 'manual') {
+     alert('You have been successfully logged out.');
+   } else if (logoutReason === 'expired') {
+     alert('Your session has expired. Please login again.');
+   }
  </script>
 </html>
