@@ -125,6 +125,16 @@ window.addEventListener("DOMContentLoaded", function () {
       // Create risk distribution pie chart
       createRiskDistributionChart(allStudents);
 
+      // Add event listener for Export Report button
+      const exportBtn = document.querySelector('.action-btn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+          if (this.querySelector('span').textContent === 'Export Report') {
+            generatePDFReport(allStudents);
+          }
+        });
+      }
+
       // ---- FILTERING ----
       const filterBtn = document.querySelector(".filter-btn");
       const filterOptions = document.getElementById("filter-options");
@@ -1000,47 +1010,15 @@ initializePerformanceSection();
 function initializePerformanceSection() {
   // Add event listeners for action buttons
   const actionButtons = document.querySelectorAll('.action-btn');
-  
   actionButtons.forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
+    button.addEventListener('click', function() {
+      const buttonText = this.querySelector('span').textContent;
       
-      const action = this.querySelector('span').textContent;
-      console.log(`Performance action clicked: ${action}`);
-      
-      // Show notification based on action
-      switch(action) {
-        case 'Export Report':
-          showNotification('Report export started...', 'info');
-          // Simulate export process
-          setTimeout(() => {
-            showNotification('Report exported successfully!', 'success');
-          }, 2000);
-          break;
-          
-        case 'Send Alerts':
-          showNotification('Sending alerts to at-risk students...', 'info');
-          // Simulate alert sending
-          setTimeout(() => {
-            showNotification('Alerts sent successfully!', 'success');
-          }, 1500);
-          break;
-          
-        case 'Schedule Meeting':
-          showNotification('Opening calendar to schedule meeting...', 'info');
-          // Simulate calendar opening
-          setTimeout(() => {
-            showNotification('Meeting scheduled successfully!', 'success');
-          }, 1000);
-          break;
-          
-        case 'Generate Insights':
-          showNotification('Generating performance insights...', 'info');
-          // Simulate insight generation
-          setTimeout(() => {
-            showNotification('Insights generated successfully!', 'success');
-          }, 2500);
-          break;
+      if (buttonText === 'Export Report') {
+        generatePDFReport(allStudents);
+      } else if (buttonText === 'Send Alerts') {
+        // TODO: Implement send alerts functionality
+        showNotification('Send Alerts functionality coming soon!', 'info');
       }
     });
   });
@@ -1289,5 +1267,143 @@ function createRiskDistributionChart(studentsData) {
   } catch (error) {
     console.error('Error creating risk distribution chart:', error);
     console.error('Error stack:', error.stack);
+  }
+}
+
+// Function to generate and download PDF report
+function generatePDFReport(studentsData) {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Set document properties
+    doc.setProperties({
+      title: 'Riskly Dashboard Report',
+      subject: 'Student Risk Analysis Report',
+      author: 'Riskly System',
+      creator: 'Riskly Dashboard'
+    });
+
+    // Add title
+    doc.setFontSize(24);
+    doc.setTextColor(102, 126, 234);
+    doc.text('Riskly Dashboard Report', 20, 30);
+    
+    // Add subtitle
+    doc.setFontSize(14);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 45);
+    
+    // Add advisor information
+    const advisorName = localStorage.getItem("advisorName") || "Unknown Advisor";
+    doc.text(`Advisor: ${advisorName}`, 20, 55);
+    
+    // Add summary statistics
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Summary Statistics', 20, 75);
+    
+    // Calculate statistics
+    const totalStudents = studentsData.length;
+    const riskCounts = {
+      'No Risk': 0,
+      'Medium Risk': 0,
+      'High Risk': 0
+    };
+    
+    studentsData.forEach(student => {
+      if (student.riskClass === 'no-risk') {
+        riskCounts['No Risk']++;
+      } else if (student.riskClass === 'medium-risk') {
+        riskCounts['Medium Risk']++;
+      } else if (student.riskClass === 'high-risk') {
+        riskCounts['High Risk']++;
+      }
+    });
+    
+    // Add statistics
+    doc.setFontSize(12);
+    doc.setTextColor(80, 80, 80);
+    doc.text(`Total Students: ${totalStudents}`, 20, 90);
+    doc.text(`No Risk: ${riskCounts['No Risk']} (${((riskCounts['No Risk'] / totalStudents) * 100).toFixed(1)}%)`, 20, 100);
+    doc.text(`Medium Risk: ${riskCounts['Medium Risk']} (${((riskCounts['Medium Risk'] / totalStudents) * 100).toFixed(1)}%)`, 20, 110);
+    doc.text(`High Risk: ${riskCounts['High Risk']} (${((riskCounts['High Risk'] / totalStudents) * 100).toFixed(1)}%)`, 20, 120);
+    
+    // Add student table
+    doc.setFontSize(16);
+    doc.setTextColor(50, 50, 50);
+    doc.text('Student Details', 20, 145);
+    
+    // Prepare table data
+    const tableData = studentsData.map(student => [
+      student.StudentID || 'N/A',
+      student.Name || 'N/A',
+      student.Gender || 'N/A',
+      student.AttendanceRate || 'N/A',
+      student.StudyHoursPerWeek || 'N/A',
+      student.PreviousGrade || 'N/A',
+      student.FinalGrade || 'N/A',
+      student.DropoutRisk || 'N/A',
+      student.Underperform || 'N/A',
+      student.riskClass || 'N/A'
+    ]);
+    
+    // Add table headers
+    const headers = [
+      'ID', 'Name', 'Gender', 'Attendance', 'Study Hours', 
+      'Previous Grade', 'Final Grade', 'Dropout Risk', 'Underperform', 'Risk Class'
+    ];
+    
+    // Create table
+    doc.autoTable({
+      head: [headers],
+      body: tableData,
+      startY: 155,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2
+      },
+      headStyles: {
+        fillColor: [102, 126, 234],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 15 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 20 },
+        5: { cellWidth: 25 },
+        6: { cellWidth: 20 },
+        7: { cellWidth: 20 },
+        8: { cellWidth: 20 },
+        9: { cellWidth: 20 }
+      }
+    });
+    
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${i} of ${pageCount}`, 20, doc.internal.pageSize.height - 10);
+      doc.text('Generated by Riskly Dashboard', doc.internal.pageSize.width - 80, doc.internal.pageSize.height - 10);
+    }
+    
+    // Save the PDF
+    const fileName = `Riskly_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    
+    console.log('PDF report generated successfully');
+    showNotification('PDF report downloaded successfully!', 'success');
+    
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    showNotification('Error generating PDF report. Please try again.', 'error');
   }
 }
