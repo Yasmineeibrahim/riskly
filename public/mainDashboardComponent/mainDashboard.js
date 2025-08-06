@@ -125,6 +125,9 @@ window.addEventListener("DOMContentLoaded", function () {
       // Create risk distribution pie chart
       createRiskDistributionChart(allStudents);
 
+      // Create feature contribution radar chart
+      createFeatureContributionChart();
+
       // Add event listener for Export Report button
       const exportBtn = document.querySelector('.action-btn');
       if (exportBtn) {
@@ -1405,5 +1408,154 @@ function generatePDFReport(studentsData) {
   } catch (error) {
     console.error('Error generating PDF report:', error);
     showNotification('Error generating PDF report. Please try again.', 'error');
+  }
+}
+
+// Function to create feature contribution radar chart
+function createFeatureContributionChart() {
+  try {
+    const canvas = document.getElementById('featureContributionChart');
+    if (!canvas) {
+      console.error('Canvas element not found for feature contribution chart');
+      return;
+    }
+
+    // Clear any existing chart data from the canvas
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Destroy existing chart if it exists
+    if (window.featureContributionChart && typeof window.featureContributionChart.destroy === 'function') {
+      console.log('Destroying existing feature contribution chart');
+      window.featureContributionChart.destroy();
+    }
+
+    // Feature contribution data (simulated based on typical ML feature importance)
+    const featureData = {
+      labels: [
+        'Attendance Rate',
+        'Study Hours',
+        'Previous Grade',
+        'Extracurricular',
+        'Parental Support',
+        'Gender',
+        'Final Grade'
+      ],
+      datasets: [{
+        label: 'Dropout Risk Contribution',
+        data: [85, 72, 68, 45, 38, 25, 92],
+        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+        borderColor: '#667eea',
+        borderWidth: 3,
+        pointBackgroundColor: '#667eea',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#7a8aed',
+        pointHoverBorderColor: '#fff'
+      }, {
+        label: 'Underperform Risk Contribution',
+        data: [78, 88, 95, 52, 42, 30, 89],
+        backgroundColor: 'rgba(118, 75, 162, 0.2)',
+        borderColor: '#764ba2',
+        borderWidth: 3,
+        pointBackgroundColor: '#764ba2',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#8a5bb8',
+        pointHoverBorderColor: '#fff'
+      }]
+    };
+
+    window.featureContributionChart = new Chart(ctx, {
+      type: 'radar',
+      data: featureData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              font: {
+                size: 12,
+                weight: '600',
+                family: "'Plus Jakarta Sans', sans-serif"
+              },
+              color: '#333'
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            titleColor: '#333',
+            bodyColor: '#666',
+            borderColor: '#ddd',
+            borderWidth: 1,
+            cornerRadius: 8,
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.parsed.r}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 100,
+            min: 0,
+            ticks: {
+              stepSize: 20,
+              color: '#666',
+              font: {
+                size: 10
+              },
+              callback: function(value) {
+                return value + '%';
+              }
+            },
+            grid: {
+              color: 'rgba(102, 126, 234, 0.1)',
+              lineWidth: 1
+            },
+            angleLines: {
+              color: 'rgba(102, 126, 234, 0.1)',
+              lineWidth: 1
+            },
+            pointLabels: {
+              color: '#333',
+              font: {
+                size: 11,
+                weight: '600',
+                family: "'Plus Jakarta Sans', sans-serif"
+              },
+              padding: 15
+            }
+          }
+        },
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1500,
+          easing: 'easeOutQuart'
+        },
+        elements: {
+          line: {
+            tension: 0.4
+          }
+        }
+      }
+    });
+
+    console.log('Feature contribution chart created successfully');
+  } catch (error) {
+    console.error('Error creating feature contribution chart:', error);
   }
 }
