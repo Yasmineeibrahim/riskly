@@ -413,9 +413,9 @@ window.addEventListener("DOMContentLoaded", function () {
     if (e.key === "Enter") performSearch();
   });
 
-  // Handle Add and Predict form submission
+    // Handle Add and Predict form submission
   const addStudentForm = document.getElementById("add-student-form");
-  
+   
   addStudentForm?.addEventListener("submit", async function(e) {
     e.preventDefault();
     
@@ -429,7 +429,8 @@ window.addEventListener("DOMContentLoaded", function () {
       PreviousGrade: parseFloat(document.getElementById("PreviousGrade").value),
       ExtracurricularActivities: parseFloat(document.getElementById("ExtracurricularActivities").value),
       ParentalSupport: document.getElementById("ParentalSupport").value,
-      FinalGrade: parseFloat(document.getElementById("FinalGrade").value)
+      FinalGrade: parseFloat(document.getElementById("FinalGrade").value),
+      advisor_email: localStorage.getItem("advisorEmail") || "unknown"
     };
 
     // Validate form data
@@ -442,10 +443,10 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      console.log("Submitting student data:", formData);
+      console.log("Submitting student data to Python backend:", formData);
       
-      // Send data to backend for prediction and storage
-      const response = await fetch("/api/students/add-and-predict", {
+      // Send to Python backend for ML prediction
+      const response = await fetch("http://localhost:5000/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -456,22 +457,51 @@ window.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
       
       if (response.ok) {
-        alert(`Student added successfully!\n\nPrediction Results:\n- Dropout Risk: ${result.prediction.DropoutRisk}\n- Underperform Risk: ${result.prediction.UnderperformRisk}\n- Risk Level: ${result.prediction.riskClass}`);
+        alert(`Student prediction completed!\n\nML Prediction Results:\n- Dropout Risk: ${result.dropout_risk ? "Yes" : "No"} (${(result.dropout_probability * 100).toFixed(1)}%)\n- Underperform Risk: ${result.underperform_risk ? "Yes" : "No"} (${(result.underperform_probability * 100).toFixed(1)}%)\n\nStudent data saved to database.`);
         
         // Clear form
         addStudentForm.reset();
-        
-        // Optionally refresh the student table
-        // You can add code here to refresh the table if needed
       } else {
-        alert(`Error: ${result.message || "Failed to add student"}`);
+        // Handle specific error types
+        if (result.error === "Duplicate email error") {
+          alert(`❌ Duplicate Email Error!\n\n${result.message}\n\nPlease use a different email address for this student.`);
+        } else {
+          alert(`Error: ${result.message || "Failed to predict student"}`);
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("An error occurred while processing your request");
+      alert("Error connecting to prediction server. Please ensure the Python backend is running on port 5000.");
     }
   });
 });
+
+// Function to predict student risk based on form data
+function predictStudentRisk(formData) {
+  let dropoutRisk = 0;
+  let underperformRisk = 0;
+
+  // Dropout risk factors
+  if (formData.AttendanceRate < 80) dropoutRisk = 1;
+  if (formData.StudyHoursPerWeek < 10) dropoutRisk = 1;
+  if (formData.ParentalSupport === 'Low') dropoutRisk = 1;
+
+  // Underperform risk factors
+  if (formData.PreviousGrade < 70) underperformRisk = 1;
+  if (formData.ExtracurricularActivities < 2) underperformRisk = 1;
+  if (formData.FinalGrade < 75) underperformRisk = 1;
+
+  // Determine risk class
+  const riskCount = dropoutRisk + underperformRisk;
+  const riskClass = riskCount === 0 ? "no-risk" : 
+                   riskCount === 1 ? "medium-risk" : "high-risk";
+
+  return {
+    dropoutRisk: dropoutRisk === 1 ? "At Risk" : "No Risk",
+    underperformRisk: underperformRisk === 1 ? "At Risk" : "No Risk",
+    riskClass: riskClass
+  };
+}
 
 // Function to add event listeners for alert mail buttons
 function addAlertMailEventListeners() {
@@ -624,41 +654,4 @@ function showNotification(message, type = 'info') {
   }, 5000);
 }
 
-document.getElementById("add-student-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
 
-  const data = {
-    Name: document.getElementById("name").value,
-    Email: document.getElementById("email").value,
-    Gender: document.getElementById("Gender").value,
-    AttendanceRate: parseFloat(document.getElementById("AttendanceRate").value),
-    PreviousGrade: parseFloat(document.getElementById("PreviousGrade").value),
-    FinalGrade: parseFloat(document.getElementById("FinalGrade").value),
-    StudyHoursPerWeek: parseFloat(document.getElementById("StudyHoursPerWeek").value),
-    ExtracurricularActivities: parseFloat(document.getElementById("ExtracurricularActivities").value),
-    ParentalSupport: document.getElementById("ParentalSupport").value,
-    advisor_email: localStorage.getItem("advisorEmail") || "unknown"
-  };
-
-  try {
-    const response = await fetch("http://localhost:5000/predict", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await response.json();
-    alert(
-      `Dropout Risk: ${result.dropout_risk ? "Yes" : "No"} (${(result.dropout_probability * 100).toFixed(1)}%)\n` +
-      `Underperform Risk: ${result.underperform_risk ? "Yes" : "No"} (${(result.underperform_probability * 100).toFixed(1)}%)`
-    );
-
-    // Optional: clear form
-    document.getElementById("add-student-form").reset();
-  } catch (err) {
-    console.error("Prediction failed", err);
-    alert("Something went wrong. Please try again.");
-  }
-});

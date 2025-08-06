@@ -1,6 +1,5 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestClassifier
@@ -38,7 +37,6 @@ def load_training_data():
     """Load data from students table"""
     engine = get_db_connection()
     query = "SELECT * FROM students"
-    print("Executing query:", pd.read_sql(query, engine))
     return pd.read_sql(query, engine)
 
 def preprocess_data(df):
@@ -51,7 +49,6 @@ def preprocess_data(df):
     feature_cols = ['AttendanceRate', 'StudyHoursPerWeek', 'PreviousGrade', 'FinalGrade', 'ExtracurricularActivities']
     scaler = StandardScaler()
     one_hot_encoded[feature_cols] = scaler.fit_transform(one_hot_encoded[feature_cols])
-    print(one_hot_encoded)
     return one_hot_encoded, scaler, encoder
 
 df = load_training_data()
@@ -60,17 +57,6 @@ df['DropoutRisk'] = df.apply(
                 row["FinalGrade"] < 65 or row["StudyHoursPerWeek"] < 10 else 0, axis=1
 )
 df_processed, scaler, encoder = preprocess_data(df)
-
-# Plot dropout risk distribution
-plt.figure(figsize=(6, 4))
-plt.hist(df['DropoutRisk'], bins=2, color='skyblue', edgecolor='black', rwidth=0.8)
-plt.xlabel('Dropout Risk (0 = No, 1 = Yes)')
-plt.ylabel('Number of Students')
-plt.title('Dropout Risk Distribution (Histogram)')
-plt.xticks([0, 1], labels=['No Risk', 'At Risk'])
-plt.grid(axis='y', linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
 
 def oversample_train_test(df, target_col):
     y = df[target_col]
@@ -124,13 +110,13 @@ def shap_analysis(rf, X_train, y_train, X_test, model_name="Model"):
 X_train_drop, y_train_drop, X_test_drop, y_test_drop = oversample_train_test(df_processed, 'DropoutRisk')
 rf_dropout = train_and_evaluate_model(X_train_drop, y_train_drop, X_test_drop, y_test_drop, "Dropout Risk Model")
 trained_feature_order = X_train_drop.columns.tolist()
-shap_analysis(rf_dropout, X_train_drop, y_train_drop, X_test_drop, "Dropout Risk Model")
+#shap_analysis(rf_dropout, X_train_drop, y_train_drop, X_test_drop, "Dropout Risk Model")
 
 # Prepare data and train Underperform model
 X_train_up, y_train_up, X_test_up, y_test_up = oversample_train_test(df_processed, 'Underperform')
 rf_underperform = train_and_evaluate_model(X_train_up, y_train_up, X_test_up, y_test_up, "Underperform Model")
 trained_feature_order_up = X_train_up.columns.tolist()
-shap_analysis(rf_underperform, X_train_up, y_train_up, X_test_up, "Underperform Model")
+#shap_analysis(rf_underperform, X_train_up, y_train_up, X_test_up, "Underperform Model")
 
 def predict_new_student(rf_dropout, rf_underperform, scaler, encoder, student_data, trained_columns_drop, trained_columns_up):
     df = pd.DataFrame([student_data])
@@ -177,26 +163,40 @@ def predict():
     data = request.json
 
     # Step 1: Predict risks
-    dropout, dropout_prob = predict_new_student(rf_dropout, scaler, encoder, data, trained_feature_order)
-    underperform, underperform_prob = predict_new_student(rf_underperform, scaler, encoder, data, trained_feature_order)
+    (dropout, dropout_prob), (underperform, underperform_prob) = predict_new_student(
+        rf_dropout, rf_underperform, scaler, encoder, data, trained_feature_order, trained_feature_order_up
+    )
 
-    # Step 2: Insert into DB
-    engine = get_db_connection()
-    df = pd.DataFrame([data])
-    df["dropout_risk"] = dropout
-    df["underperform_risk"] = underperform
-    df["dropout_probability"] = round(dropout_prob, 2)
-    df["underperform_probability"] = round(underperform_prob, 2)
-    df["advisor_email"] = data.get("advisor_email", "unknown")
+    # Step 2: Insert into DB with duplicate email handling
+    try:
+        engine = get_db_connection()
+        df = pd.DataFrame([data])
+        df["dropout_risk"] = dropout
+        df["underperform_risk"] = underperform
+        df["dropout_probability"] = round(dropout_prob, 2)
+        df["underperform_probability"] = round(underperform_prob, 2)
+        df["advisor_email"] = data.get("advisor_email", "unknown")
 
-    df.to_sql("predicted_students", engine, if_exists="append", index=False)
-
-    return jsonify({
-        "dropout_risk": dropout,
-        "underperform_risk": underperform,
-        "dropout_probability": dropout_prob,
-        "underperform_probability": underperform_prob
-    })
+        df.to_sql("predicted_students", engine, if_exists="append", index=False)
+        
+        return jsonify({
+            "dropout_risk": int(dropout),
+            "underperform_risk": int(underperform),
+            "dropout_probability": float(dropout_prob),
+            "underperform_probability": float(underperform_prob)
+        })
+    
+    except Exception as e:
+        if "Duplicate entry" in str(e) and "Email" in str(e):
+            return jsonify({
+                "error": "Duplicate email error",
+                "message": "A student with this email already exists in the system."
+            }), 400
+        else:
+            return jsonify({
+                "error": "Database error",
+                "message": "An error occurred while saving the student data."
+            }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
