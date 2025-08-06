@@ -979,3 +979,91 @@ function setupLogout() {
 // Initialize logout functionality
 console.log('Initializing logout functionality...');
 setupLogout();
+
+// Initialize Performance section functionality
+console.log('Initializing performance section...');
+initializePerformanceSection();
+
+// Function to initialize Performance section
+function initializePerformanceSection() {
+  // Add event listeners for action buttons
+  const actionButtons = document.querySelectorAll('.action-btn');
+  
+  actionButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const action = this.querySelector('span').textContent;
+      console.log(`Performance action clicked: ${action}`);
+      
+      // Show notification based on action
+      switch(action) {
+        case 'Export Report':
+          showNotification('Report export started...', 'info');
+          // Simulate export process
+          setTimeout(() => {
+            showNotification('Report exported successfully!', 'success');
+          }, 2000);
+          break;
+          
+        case 'Send Alerts':
+          showNotification('Sending alerts to at-risk students...', 'info');
+          // Simulate alert sending
+          setTimeout(() => {
+            showNotification('Alerts sent successfully!', 'success');
+          }, 1500);
+          break;
+          
+        case 'Schedule Meeting':
+          showNotification('Opening calendar to schedule meeting...', 'info');
+          // Simulate calendar opening
+          setTimeout(() => {
+            showNotification('Meeting scheduled successfully!', 'success');
+          }, 1000);
+          break;
+          
+        case 'Generate Insights':
+          showNotification('Generating performance insights...', 'info');
+          // Simulate insight generation
+          setTimeout(() => {
+            showNotification('Insights generated successfully!', 'success');
+          }, 2500);
+          break;
+      }
+    });
+  });
+  
+  // Update performance metrics based on student data
+  updatePerformanceMetrics();
+}
+
+// Function to update performance metrics
+function updatePerformanceMetrics() {
+  try {
+    const advisorStudents = JSON.parse(localStorage.getItem("advisorStudents")) || [];
+    
+    if (advisorStudents.length > 0) {
+      // Calculate metrics based on student data
+      const totalStudents = advisorStudents.length;
+      const avgGrade = 85.2; // This would be calculated from actual data
+      const attendanceRate = 78.5; // This would be calculated from actual data
+      const atRiskStudents = 12; // This would be calculated from actual data
+      const successRate = 92.1; // This would be calculated from actual data
+      
+      // Update the metric values
+      const overallPerformance = document.getElementById('overall-performance');
+      const studentEngagement = document.getElementById('student-engagement');
+      const riskManagement = document.getElementById('risk-management');
+      const successRateElement = document.getElementById('success-rate');
+      
+      if (overallPerformance) overallPerformance.textContent = `${avgGrade}%`;
+      if (studentEngagement) studentEngagement.textContent = `${attendanceRate}%`;
+      if (riskManagement) riskManagement.textContent = atRiskStudents;
+      if (successRateElement) successRateElement.textContent = `${successRate}%`;
+      
+      console.log('Performance metrics updated successfully');
+    }
+  } catch (error) {
+    console.error('Error updating performance metrics:', error);
+  }
+}
