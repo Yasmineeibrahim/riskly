@@ -119,6 +119,9 @@ window.addEventListener("DOMContentLoaded", function () {
       // Add event listeners for alert mail buttons
       addAlertMailEventListeners();
 
+      // Update performance metrics with the loaded student data
+      updatePerformanceMetrics(allStudents);
+
       // ---- FILTERING ----
       const filterBtn = document.querySelector(".filter-btn");
       const filterOptions = document.getElementById("filter-options");
@@ -1038,30 +1041,69 @@ function initializePerformanceSection() {
 }
 
 // Function to update performance metrics
-function updatePerformanceMetrics() {
+function updatePerformanceMetrics(studentsData = null) {
   try {
-    const advisorStudents = JSON.parse(localStorage.getItem("advisorStudents")) || [];
+    // Use provided students data or fall back to localStorage
+    let advisorStudents = studentsData;
+    if (!advisorStudents) {
+      advisorStudents = JSON.parse(localStorage.getItem("advisorStudents")) || [];
+    }
     
-    if (advisorStudents.length > 0) {
+    if (advisorStudents && advisorStudents.length > 0) {
       // Calculate metrics based on student data
       const totalStudents = advisorStudents.length;
-      const avgGrade = 85.2; // This would be calculated from actual data
-      const attendanceRate = 78.5; // This would be calculated from actual data
-      const atRiskStudents = 12; // This would be calculated from actual data
-      const successRate = 92.1; // This would be calculated from actual data
+      
+      // Calculate average grade from student data
+      const totalGrade = advisorStudents.reduce((sum, student) => {
+        return sum + (parseFloat(student.FinalGrade) || 0);
+      }, 0);
+      const avgGrade = totalStudents > 0 ? (totalGrade / totalStudents).toFixed(1) : 0;
+      
+      // Calculate average attendance rate
+      const totalAttendance = advisorStudents.reduce((sum, student) => {
+        return sum + (parseFloat(student.AttendanceRate) || 0);
+      }, 0);
+      const attendanceRate = totalStudents > 0 ? (totalAttendance / totalStudents).toFixed(1) : 0;
+      
+      // Calculate number of at-risk students
+      const atRiskStudents = advisorStudents.filter(student => {
+        const isAtRisk = student.DropoutRisk === "At Risk" || student.Underperform === "At Risk";
+        console.log(`Student ${student.StudentID} (${student.Name}): DropoutRisk=${student.DropoutRisk}, Underperform=${student.Underperform}, isAtRisk=${isAtRisk}`);
+        return isAtRisk;
+      }).length;
+      
+      // Calculate total number of risks assigned to this advisor
+      const totalRisks = advisorStudents.reduce((total, student) => {
+        let studentRisks = 0;
+        if (student.DropoutRisk === "At Risk") studentRisks++;
+        if (student.Underperform === "At Risk") studentRisks++;
+        console.log(`Student ${student.StudentID} (${student.Name}): ${studentRisks} risks assigned`);
+        return total + studentRisks;
+      }, 0);
+      
+      // Calculate success rate (students not at risk)
+      const successRate = totalStudents > 0 ? ((totalStudents - atRiskStudents) / totalStudents * 100).toFixed(1) : 0;
       
       // Update the metric values
       const overallPerformance = document.getElementById('overall-performance');
       const studentEngagement = document.getElementById('student-engagement');
-      const riskManagement = document.getElementById('risk-management');
+      const totalRisksElement = document.getElementById('total-risks');
       const successRateElement = document.getElementById('success-rate');
       
       if (overallPerformance) overallPerformance.textContent = `${avgGrade}%`;
       if (studentEngagement) studentEngagement.textContent = `${attendanceRate}%`;
-      if (riskManagement) riskManagement.textContent = atRiskStudents;
+      if (totalRisksElement) totalRisksElement.textContent = totalRisks;
       if (successRateElement) successRateElement.textContent = `${successRate}%`;
       
-      console.log('Performance metrics updated successfully');
+      console.log('Performance metrics updated successfully', {
+        totalStudents,
+        avgGrade,
+        attendanceRate,
+        atRiskStudents,
+        totalRisks,
+        successRate,
+        sampleStudent: advisorStudents[0] // Log first student for debugging
+      });
     }
   } catch (error) {
     console.error('Error updating performance metrics:', error);
