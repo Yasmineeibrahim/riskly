@@ -1,5 +1,5 @@
 import express from 'express';
-import { getStudentsByIds, getAllStudents, testConnection } from '../controllers/studentController.js';
+import { getStudentsByIds, getAllStudents, testConnection, getPredictedStudents } from '../controllers/studentController.js';
 
 const router = express.Router();
 
@@ -11,5 +11,8 @@ router.post('/by-ids', getStudentsByIds);
 
 // Get all students (for admin purposes)
 router.get('/all', getAllStudents);
+
+// Get predicted students by advisor email
+router.post('/predicted', getPredictedStudents);
 
 export default router; 

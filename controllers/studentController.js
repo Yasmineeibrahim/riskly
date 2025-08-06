@@ -84,6 +84,72 @@ export const getStudentsByIds = async (req, res) => {
   }
 };
 
+// Get predicted students by advisor email
+export const getPredictedStudents = async (req, res) => {
+  try {
+    const { advisorEmail } = req.body;
+    
+    if (!advisorEmail) {
+      return res.status(400).json({ 
+        message: "Advisor email is required" 
+      });
+    }
+
+    // Query the predicted_students table directly using sequelize
+    const predictedStudents = await sequelize.query(
+      `SELECT * FROM predicted_students WHERE advisor_email = ?`,
+      {
+        replacements: [advisorEmail],
+        type: sequelize.QueryTypes.SELECT
+      }
+    );
+
+    // Transform the data to match the expected format
+    const transformedStudents = predictedStudents.map(student => {
+      // Convert numeric risks to string format
+      const dropoutRisk = student.dropout_risk === 1 ? "At Risk" : "No Risk";
+      const underperformRisk = student.underperform_risk === 1 ? "At Risk" : "No Risk";
+      
+      let riskCount = 0;
+      if (dropoutRisk === "At Risk") riskCount++;
+      if (underperformRisk === "At Risk") riskCount++;
+      
+      const riskClass = riskCount === 0 ? "no-risk" : 
+                       riskCount === 1 ? "medium-risk" : "high-risk";
+      
+      return {
+        StudentID: `P${student.id || Math.random().toString(36).substr(2, 9)}`, // Generate unique ID for predicted students
+        Name: student.Name,
+        Gender: student.Gender,
+        AttendanceRate: student.AttendanceRate,
+        StudyHoursPerWeek: student.StudyHoursPerWeek,
+        PreviousGrade: student.PreviousGrade,
+        ExtracurricularActivities: student.ExtracurricularActivities,
+        ParentalSupport: student.ParentalSupport,
+        FinalGrade: student.FinalGrade,
+        Email: student.Email,
+        DropoutRisk: dropoutRisk,
+        Underperform: underperformRisk,
+        riskClass: riskClass,
+        dropout_probability: student.dropout_probability,
+        underperform_probability: student.underperform_probability,
+        isPredicted: true // Flag to identify predicted students
+      };
+    });
+
+    res.status(200).json({
+      message: "Predicted students retrieved successfully",
+      students: transformedStudents
+    });
+  } catch (error) {
+    console.error("Error fetching predicted students:", error);
+    res.status(500).json({ 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+};
+
 // Get all students (for admin purposes)
 export const getAllStudents = async (req, res) => {
   try {

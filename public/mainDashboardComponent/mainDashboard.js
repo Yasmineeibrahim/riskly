@@ -7,68 +7,105 @@ window.addEventListener("DOMContentLoaded", function () {
     console.error("Error parsing advisorStudents from localStorage:", e);
   }
 
-  if (advisorStudents.length === 0) {
-    console.log("No students found for this advisor");
-    const container = document.createElement("div");
-    container.className = "student-ids-list";
-    container.innerHTML =
-      '<h2>My Students</h2><div class="student-id">No students assigned to this advisor.</div>';
-    document.body.appendChild(container);
-    return;
-  }
-    // Fetch students from SQL database
-  fetch("/api/students/by-ids", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ studentIds: advisorStudents }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (!data.students) {
-        console.error("No students data received:", data);
+  // Get advisor email from localStorage
+  const advisorEmail = localStorage.getItem("advisorEmail") || "unknown";
+  
+  // Fetch both assigned students and predicted students
+  Promise.all([
+    // Fetch assigned students (if any)
+    advisorStudents.length > 0 ? fetch("/api/students/by-ids", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ studentIds: advisorStudents }),
+    }).then(res => res.json()) : Promise.resolve({ students: [] }),
+    
+    // Fetch predicted students
+    fetch("/api/students/predicted", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ advisorEmail: advisorEmail }),
+    }).then(res => res.json())
+    ])
+    .then(([assignedData, predictedData]) => {
+      console.log('Assigned students data:', assignedData);
+      console.log('Predicted students data:', predictedData);
+      
+      // Combine assigned and predicted students
+      const assignedStudents = assignedData.students || [];
+      const predictedStudents = predictedData.students || [];
+      
+      // Add a flag to distinguish predicted students in the display
+      const allStudents = [
+        ...assignedStudents.map(s => ({ ...s, isAssigned: true })),
+        ...predictedStudents.map(s => ({ ...s, isPredicted: true }))
+      ];
+      
+      if (allStudents.length === 0) {
+        console.log("No students found for this advisor");
+        const container = document.createElement("div");
+        container.className = "student-ids-list";
+        container.innerHTML =
+          '<h2>My Students</h2><div class="student-id">No students assigned to this advisor.</div>';
+        document.body.appendChild(container);
         return;
       }
 
-             const filteredStudents = data.students;
-       console.log('Students with risk classes:', filteredStudents.map(s => ({ id: s.StudentID, name: s.Name, riskClass: s.riskClass })));
-       const allHeaders = [
+      console.log('All students with risk classes:', allStudents.map(s => ({ 
+        id: s.StudentID, 
+        name: s.Name, 
+        riskClass: s.riskClass,
+        type: s.isPredicted ? 'Predicted' : 'Assigned'
+      })));
+      
+             const allHeaders = [
          "StudentID", "Name", "Gender", "AttendanceRate", 
          "StudyHoursPerWeek", "PreviousGrade", "ExtracurricularActivities", 
          "ParentalSupport", "FinalGrade", "DropoutRisk", "Underperform"
        ];
+       
+       // Add prediction probabilities for predicted students
+       allStudents.forEach(student => {
+         if (student.isPredicted && student.dropout_probability && student.underperform_probability) {
+           student.DropoutRisk = `${student.DropoutRisk} (${(student.dropout_probability * 100).toFixed(1)}%)`;
+           student.Underperform = `${student.Underperform} (${(student.underperform_probability * 100).toFixed(1)}%)`;
+         }
+       });
 
       const container = document.createElement("div");
       container.className = "student-ids-list";
-      const tableHTML = `
-        <h2 class="student-table-title">My Assigned Students</h2>
-        <table class="students-table">
-            <thead>
-                <tr>
-        ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
-        <th>Alert Mail</th>
-      </tr>
-            </thead>
-             <tbody>
-      ${filteredStudents
-        .map((student) => {
-          const isDisabled = student.riskClass === "no-risk";
-          return `
-          <tr class="${student.riskClass}">
-            ${allHeaders.map((header) => `<td>${student[header] || ""}</td>`).join("")}
-            <td>
-              <button class="alert-mail-btn" ${isDisabled ? "disabled" : ""}>
-                Send Alert
-              </button>
-            </td>
-          </tr>
-        `;
-        })
-        .join("")}  
-    </tbody>
-        </table>
-    `;
+             const tableHTML = `
+         <h2 class="student-table-title">My Students (Assigned & Predicted)</h2>
+         <table class="students-table">
+             <thead>
+                 <tr>
+         ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+         <th>Alert Mail</th>
+       </tr>
+             </thead>
+              <tbody>
+       ${allStudents
+         .map((student) => {
+           const isDisabled = student.riskClass === "no-risk";
+           const typeClass = student.isPredicted ? "predicted-student" : "assigned-student";
+           return `
+           <tr class="${student.riskClass} ${typeClass}">
+             ${allHeaders.map((header) => `<td>${student[header] || ""}</td>`).join("")}
+             <td>
+               <button class="alert-mail-btn" ${isDisabled ? "disabled" : ""}>
+                 Send Alert
+               </button>
+             </td>
+           </tr>
+         `;
+         })
+         .join("")}  
+     </tbody>
+         </table>
+     `;
 
       container.innerHTML = tableHTML;
       const tableSection = document.getElementById("student-table-section");
@@ -90,54 +127,55 @@ window.addEventListener("DOMContentLoaded", function () {
         filterOptions.classList.toggle("hidden");
       });
 
-      filterOptions?.addEventListener("click", (e) => {
-        const selectedClass = e.target.dataset.filter;
-        if (!selectedClass) return;
+             filterOptions?.addEventListener("click", (e) => {
+         const selectedClass = e.target.dataset.filter;
+         if (!selectedClass) return;
 
-        // Filter logic
-        const filtered = selectedClass === "all"
-          ? filteredStudents
-          : filteredStudents.filter((student) => student.riskClass === selectedClass);
+         // Filter logic
+         const filtered = selectedClass === "all"
+           ? allStudents
+           : allStudents.filter((student) => student.riskClass === selectedClass);
 
-        // Re-render table with filtered data
-        const newFilteredHTML = `
-          <h2 class="student-table-title">My Assigned Students</h2>
-          <table class="students-table">
-            <thead>
-              <tr>
-                ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
-                <th>Alert Mail</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filtered
-                .map((student) => {
-                  const isDisabled = student.riskClass === "no-risk";
-                  return `
-                    <tr class="${student.riskClass}">
-                      ${allHeaders
-                        .map((header) => `<td>${student[header] || ""}</td>`)
-                        .join("")}
-                      <td>
-                        <button class="alert-mail-btn" ${
-                          isDisabled ? "disabled" : ""
-                        }>
-                          Send Alert
-                        </button>
-                      </td>
-                    </tr>
-                  `;
-                })
-                .join("")}
-            </tbody>
-          </table>
-        `;
-        container.innerHTML = newFilteredHTML;
-        filterOptions.classList.add("hidden");
-        
-        // Re-add event listeners for the new buttons
-        addAlertMailEventListeners();
-      });
+         // Re-render table with filtered data
+         const newFilteredHTML = `
+           <h2 class="student-table-title">My Students (Assigned & Predicted)</h2>
+           <table class="students-table">
+             <thead>
+               <tr>
+                 ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+                 <th>Alert Mail</th>
+               </tr>
+             </thead>
+             <tbody>
+               ${filtered
+                 .map((student) => {
+                   const isDisabled = student.riskClass === "no-risk";
+                   const typeClass = student.isPredicted ? "predicted-student" : "assigned-student";
+                   return `
+                     <tr class="${student.riskClass} ${typeClass}">
+                       ${allHeaders
+                         .map((header) => `<td>${student[header] || ""}</td>`)
+                         .join("")}
+                       <td>
+                         <button class="alert-mail-btn" ${
+                           isDisabled ? "disabled" : ""
+                         }>
+                           Send Alert
+                         </button>
+                       </td>
+                     </tr>
+                   `;
+                 })
+                 .join("")}
+             </tbody>
+           </table>
+         `;
+         container.innerHTML = newFilteredHTML;
+         filterOptions.classList.add("hidden");
+         
+         // Re-add event listeners for the new buttons
+         addAlertMailEventListeners();
+       });
 
       // ---- SORTING ----
       const sortBtn = document.querySelector(".sort-btn");
@@ -149,76 +187,77 @@ window.addEventListener("DOMContentLoaded", function () {
 
       let sortOrder = {};
 
-      sortOptions?.addEventListener("click", (e) => {
-        const field = e.target.dataset.sort;
-        if (!field) return;
+               sortOptions?.addEventListener("click", (e) => {
+           const field = e.target.dataset.sort;
+           if (!field) return;
 
-        // Ensure the field exists in the student objects
-        if (!filteredStudents[0] || !(field in filteredStudents[0])) {
-          console.warn(`Field '${field}' not found in student data.`);
-          return;
-        }
+           // Ensure the field exists in the student objects
+           if (!allStudents[0] || !(field in allStudents[0])) {
+             console.warn(`Field '${field}' not found in student data.`);
+             return;
+           }
 
-        // Show sort order options
-        const sortOrderMenu = document.getElementById("sort-order");
-        sortOrderMenu.classList.remove("hidden");
+           // Show sort order options
+           const sortOrderMenu = document.getElementById("sort-order");
+           sortOrderMenu.classList.remove("hidden");
 
-        sortOrderMenu.addEventListener("click", (event) => {
-          const order = event.target.dataset.order;
-          if (!order) return;
+           sortOrderMenu.addEventListener("click", (event) => {
+             const order = event.target.dataset.order;
+             if (!order) return;
 
-          filteredStudents.sort((a, b) => {
-            const valA = a[field] || "";
-            const valB = b[field] || "";
+             allStudents.sort((a, b) => {
+               const valA = a[field] || "";
+               const valB = b[field] || "";
 
-            // Check for numbers
-            if (!isNaN(valA) && !isNaN(valB)) {
-              return order === "asc" ? parseFloat(valA) - parseFloat(valB) : parseFloat(valB) - parseFloat(valA);
-            } else {
-              return order === "asc" ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
-            }
-          });
+               // Check for numbers
+               if (!isNaN(valA) && !isNaN(valB)) {
+                 return order === "asc" ? parseFloat(valA) - parseFloat(valB) : parseFloat(valB) - parseFloat(valA);
+               } else {
+                 return order === "asc" ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
+               }
+             });
 
-          // Re-render table
-          const newTableHTML = `
-            <h2 class="student-table-title">My Assigned Students</h2>
-            <table class="students-table">
-              <thead>
-                <tr>
-                  ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
-                  <th>Alert Mail</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${filteredStudents
-                  .map((student) => {
-                    const isDisabled = student.riskClass === "no-risk";
-                    return `
-                      <tr class="${student.riskClass}">
-                        ${allHeaders
-                          .map((header) => `<td>${student[header] || ""}</td>`)
-                          .join("")}
-                        <td>
-                          <button class="alert-mail-btn" ${
-                            isDisabled ? "disabled" : ""
-                          }>
-                            Send Alert
-                          </button>
-                        </td>
-                      </tr>
-                    `;
-                  })
-                  .join("")}
-              </tbody>
-            </table>
-          `;
-          container.innerHTML = newTableHTML;
-          sortOrderMenu.classList.add("hidden");
-          
-          // Re-add event listeners for the new buttons
-          addAlertMailEventListeners();
-        });
-      });
+             // Re-render table
+             const newTableHTML = `
+               <h2 class="student-table-title">My Students (Assigned & Predicted)</h2>
+               <table class="students-table">
+                 <thead>
+                   <tr>
+                     ${allHeaders.map((header) => `<th>${header}</th>`).join("")}
+                     <th>Alert Mail</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   ${allStudents
+                     .map((student) => {
+                       const isDisabled = student.riskClass === "no-risk";
+                       const typeClass = student.isPredicted ? "predicted-student" : "assigned-student";
+                       return `
+                         <tr class="${student.riskClass} ${typeClass}">
+                           ${allHeaders
+                             .map((header) => `<td>${student[header] || ""}</td>`)
+                             .join("")}
+                           <td>
+                             <button class="alert-mail-btn" ${
+                               isDisabled ? "disabled" : ""
+                             }>
+                               Send Alert
+                             </button>
+                           </td>
+                         </tr>
+                       `;
+                     })
+                     .join("")}
+                 </tbody>
+               </table>
+             `;
+             container.innerHTML = newTableHTML;
+             sortOrderMenu.classList.add("hidden");
+             
+             // Re-add event listeners for the new buttons
+             addAlertMailEventListeners();
+           });
+         });
     })
     .catch((error) => {
       console.error("Error fetching students:", error);

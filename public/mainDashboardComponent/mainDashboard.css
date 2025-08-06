@@ -550,6 +550,36 @@ width: 100%;
   box-shadow: none;
 }
 
+/* Student type styling */
+.student-type {
+  font-weight: 600;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.student-type.assigned-student {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.student-type.predicted-student {
+  background-color: rgba(255, 152, 0, 0.2);
+  color: #FF9800;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+/* Row styling for different student types */
+.assigned-student {
+  border-left: 3px solid #4CAF50;
+}
+
+.predicted-student {
+  border-left: 3px solid #FF9800;
+}
+
 /* Notification styles */
 .notification {
   position: fixed;
