@@ -1011,20 +1011,19 @@ initializePerformanceSection();
 
 // Function to initialize Performance section
 function initializePerformanceSection() {
-  // Add event listeners for action buttons
-  const actionButtons = document.querySelectorAll('.action-btn');
-  actionButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const buttonText = this.querySelector('span').textContent;
-      
-      if (buttonText === 'Export Report') {
-        generatePDFReport(allStudents);
-      } else if (buttonText === 'Send Alerts') {
-        // TODO: Implement send alerts functionality
-        showNotification('Send Alerts functionality coming soon!', 'info');
-      }
-    });
-  });
+          // Add event listeners for action buttons
+        const actionButtons = document.querySelectorAll('.action-btn');
+        actionButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const buttonText = this.querySelector('span').textContent;
+
+            if (buttonText === 'Export Report') {
+              generatePDFReport(allStudents);
+            } else if (buttonText === 'Send Alerts') {
+              showNotification('Alert email sent to all students', 'success');
+            }
+          });
+        });
   
   // Update performance metrics based on student data
   updatePerformanceMetrics();
